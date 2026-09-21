@@ -39,24 +39,19 @@ button:active{transform:scale(.97)}
 #mobileJump{display:none;position:absolute;right:22px;bottom:28px;width:72px;height:72px;border-radius:50%;
  background:rgba(255,255,255,.16);color:white;border:1px solid rgba(255,255,255,.25)}
 @media(max-width:700px){#mobileJump{display:block}.panel{padding:26px}.secondary{margin:8px 0 0}}
-
 </style>
 </head>
 <body>
-<audio id="bgMusic" loop preload="auto"><source src="musique.mp3" type="audio/mpeg"></audio>
 <div id="game"></div>
 
 <div id="ui">
   <div id="menu" class="panel">
     <div class="logo">SKYDREAMS<span>Endless sky experience</span></div>
-    <div class="sub">Traverse un monde 3D généré à l'infini.<br>Évite les trous et va le plus loin possible.</div><div id="menuCoins" class="value">0</div></div>
-      <div class="hudbox"><div class="label">Record</div><div id="bestScore" class="value">0</div></div>
-    </div>
-    <div class="menu-actions">
-      <button id="play">JOUER</button>
-      <button id="how" class="secondary">CONTRÔLES</button>
-    </div>
+    <div class="sub">Traverse un monde 3D généré à l'infini.<br>Évite les trous et va le plus loin possible.</div>
+    <button id="play">JOUER</button>
+    <button id="how" class="secondary">CONTRÔLES</button>
   </div>
+
   <div id="controls" class="panel hidden">
     <div class="logo" style="font-size:42px">CONTRÔLES</div>
     <div class="sub">← → ou A / D pour te déplacer<br>Espace / ↑ / W ou clic pour sauter<br><b>R</b> pour recommencer</div>
@@ -65,14 +60,14 @@ button:active{transform:scale(.97)}
 
   <div id="gameover" class="panel hidden">
     <div class="logo" style="font-size:48px">GAME OVER</div>
-    <div class="sub">Tu as atteint</div>
+    <div class="sub">Distance parcourue</div>
     <div id="finalScore" style="font-size:54px;font-weight:900;margin:-5px 0 25px">0</div>
     <button id="retry">REJOUER</button>
     <button id="home" class="secondary">MENU</button>
   </div>
 
   <div id="hud">
-    <div class="hudbox"><div class="label">Distance</div><div id="score" class="value">0</div></div></div>
+    <div class="hudbox"><div class="label">Distance</div><div id="score" class="value">0</div></div>
     <div class="hudbox" id="pause"><div class="label">État</div><div id="pauseText" class="value">PAUSE</div></div>
   </div>
   <div class="help">Souris pour diriger · clic pour sauter · R pour recommencer</div>
@@ -121,10 +116,6 @@ let mouseJustPressed, mouseMode, keyInput;
 // game variables
 let x=0, y=0, z=0, vy=0; // ship
 let gameStarted=false; let gamePaused=false;
-let coins = Number(localStorage.getItem('skyCoins') || 0);
-let bestScore = Number(localStorage.getItem('skyBest') || 0);
-let selectedSkin = localStorage.getItem('skySkin') || 'classic';
-let coinRows = [];
 let trackGap = 0;        // track gap
 let mouseDown = 0;       // mouse jump
 let trackSx = 3;         // track side
@@ -226,7 +217,6 @@ let update = () =>
         }
     }
 
-
     // draw player
     if (y >= 0 & trackRows[z+cameraInFront|0][Math.round(x+3)])
     {
@@ -239,9 +229,7 @@ let update = () =>
     for (i = 99; i--;)
     {
         // draw player
-        if(selectedSkin === 'gold') hsl(45, 95, 70-i*.25);
-        else if(selectedSkin === 'rainbow') hsl((z*3+i*4)%360, 90, 99-i*.7);
-        else hsl(z/9-i/3, 90, 99-i*.7);
+        hsl(z/9-i/3, 90, 99-i*.7);
         [px, py, s] = P(x+.1-i/1e3, y+.35-i/1e3, cameraInFront);
         c.ellipse(px, py, i*s/300, i*s/300, 0, 0, 9);
         c.beginPath(c.fill());
@@ -288,9 +276,7 @@ let update = () =>
     {
         if (mouseJustPressed)
         {
-            x = y = z = vy = trackGap = 0;
-            trackSx = trackSw = 3;
-            trackRows = [];
+            showGameOver();
         }
     }
 
@@ -363,7 +349,7 @@ else
         keyInput[e.key] = 1;
         if (e.key === 'r')
         {
-            respawn();
+            resetGame();
         }
         if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w')
         {
@@ -410,11 +396,6 @@ else
     }
     
     
-// Music system
-const bgMusic = document.getElementById('bgMusic');
-bgMusic.volume = 0.35;
-function startMusic(){ bgMusic.play().catch(() => {}); }
-
 // UI integration
 const menu = document.getElementById('menu');
 const controls = document.getElementById('controls');
@@ -423,12 +404,6 @@ const hud = document.getElementById('hud');
 const scoreEl = document.getElementById('score');
 const finalScore = document.getElementById('finalScore');
 const pauseText = document.getElementById('pauseText');
-const toast = document.getElementById('toast');
-
-
-
-
-syncStats();
 
 function resetGame(){
     x = y = z = vy = trackGap = 0;
@@ -439,7 +414,6 @@ function resetGame(){
     gamePaused = false;
     menu.classList.add('hidden');
     controls.classList.add('hidden');
-    shop.classList.add('hidden');
     gameover.classList.add('hidden');
     hud.classList.add('active');
     pauseText.textContent = 'PAUSE';
@@ -451,13 +425,11 @@ function showGameOver(){
     gamePaused = false;
     hud.classList.remove('active');
     finalScore.textContent = Math.floor(z);
-
     gameover.classList.remove('hidden');
 }
 
-document.getElementById('play').onclick = () => { startMusic(); resetGame(); };
-document.getElementById('retry').onclick = () => { startMusic(); resetGame(); };
-
+document.getElementById('play').onclick = resetGame;
+document.getElementById('retry').onclick = resetGame;
 document.getElementById('home').onclick = () => {
     gameStarted = false; gamePaused = false;
     gameover.classList.add('hidden');
@@ -473,7 +445,7 @@ document.getElementById('back').onclick = () => {
 document.getElementById('pause').onclick = () => {
     if(!gameStarted) return;
     gamePaused = !gamePaused;
-    pauseText.textContent = gamePaused ? 'REPRENDRE' : 'PAUSE'; if(gamePaused) fadeMusic(0,400); else if(!musicMuted){bgMusic.play().catch(()=>{});fadeMusic(musicVolume,600);}
+    pauseText.textContent = gamePaused ? 'REPRENDRE' : 'PAUSE';
 };
 
 document.getElementById('mobileJump').onclick = () => {
@@ -482,7 +454,6 @@ document.getElementById('mobileJump').onclick = () => {
 
 setInterval(() => {
     if(gameStarted) scoreEl.textContent = Math.floor(z);
-    }
 }, 100);
 
 
