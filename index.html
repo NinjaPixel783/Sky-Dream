@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkyDreams — Endless Sky</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07111f;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+#ui{position:fixed;inset:0;pointer-events:none;color:white}
+.panel{
+  pointer-events:auto;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:min(520px,calc(100vw - 40px));padding:34px;border:1px solid rgba(255,255,255,.18);
+  border-radius:28px;background:rgba(8,18,35,.48);backdrop-filter:blur(22px);
+  box-shadow:0 24px 80px rgba(0,0,0,.35),inset 0 1px rgba(255,255,255,.15);
+  text-align:center;transition:.35s ease
+}
+.hidden{opacity:0;visibility:hidden;transform:translate(-50%,-46%) scale(.96);pointer-events:none!important}
+.logo{font-size:clamp(42px,9vw,78px);font-weight:900;letter-spacing:-.07em;line-height:.9;
+ text-shadow:0 8px 35px rgba(0,0,0,.35)}
+.logo span{display:block;font-size:14px;letter-spacing:.35em;text-transform:uppercase;opacity:.7;margin-top:14px}
+.sub{opacity:.75;margin:24px 0 26px}
+button{
+ border:0;border-radius:15px;padding:15px 28px;font-size:16px;font-weight:800;cursor:pointer;color:#07111f;
+ background:white;box-shadow:0 10px 30px rgba(0,0,0,.22);transition:.2s
+}
+button:hover{transform:translateY(-2px) scale(1.02)}
+button:active{transform:scale(.97)}
+.secondary{margin-left:8px;background:rgba(255,255,255,.12);color:white;border:1px solid rgba(255,255,255,.15)}
+#hud{position:absolute;inset:0;display:flex;justify-content:space-between;align-items:flex-start;padding:22px;opacity:0;transition:.3s}
+#hud.active{opacity:1}
+.hudbox{padding:11px 16px;border:1px solid rgba(255,255,255,.16);background:rgba(5,15,28,.38);
+ backdrop-filter:blur(14px);border-radius:16px;min-width:120px}
+.label{font-size:10px;text-transform:uppercase;letter-spacing:.18em;opacity:.6}
+.value{font-size:22px;font-weight:900;margin-top:2px}
+#pause{pointer-events:auto}
+.help{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);opacity:.6;font-size:12px;text-align:center}
+#mobileJump{display:none;position:absolute;right:22px;bottom:28px;width:72px;height:72px;border-radius:50%;
+ background:rgba(255,255,255,.16);color:white;border:1px solid rgba(255,255,255,.25)}
+@media(max-width:700px){#mobileJump{display:block}.panel{padding:26px}.secondary{margin:8px 0 0}}
+</style>
+</head>
+<body>
+<div id="game"></div>
+
+<div id="ui">
+  <div id="menu" class="panel">
+    <div class="logo">SKYDREAMS<span>Endless sky experience</span></div>
+    <div class="sub">Traverse un monde 3D généré à l'infini.<br>Évite les trous et va le plus loin possible.</div>
+    <button id="play">JOUER</button>
+    <button id="how" class="secondary">CONTRÔLES</button>
+  </div>
+
+  <div id="controls" class="panel hidden">
+    <div class="logo" style="font-size:42px">CONTRÔLES</div>
+    <div class="sub">← → ou A / D pour te déplacer<br>Espace / ↑ / W ou clic pour sauter<br><b>R</b> pour recommencer</div>
+    <button id="back">RETOUR</button>
+  </div>
+
+  <div id="gameover" class="panel hidden">
+    <div class="logo" style="font-size:48px">GAME OVER</div>
+    <div class="sub">Distance parcourue</div>
+    <div id="finalScore" style="font-size:54px;font-weight:900;margin:-5px 0 25px">0</div>
+    <button id="retry">REJOUER</button>
+    <button id="home" class="secondary">MENU</button>
+  </div>
+
+  <div id="hud">
+    <div class="hudbox"><div class="label">Distance</div><div id="score" class="value">0</div></div>
+    <div class="hudbox" id="pause"><div class="label">État</div><div id="pauseText" class="value">PAUSE</div></div>
+  </div>
+  <div class="help">Souris pour diriger · clic pour sauter · R pour recommencer</div>
+  <button id="mobileJump">↑</button>
+</div>
+
+<script>
+/*
+SKYDREAMS 🌈 A 3D 1K FEVER DREAM
+COPYRIGHT 2026 ☁️ KILLED BY A PIXEL
+Made by Frank Force for JS1024 2026
+https://js1024.fun/demos/2026/25/readme
+
+An endless race in the sky inspired by 90's 3D games like sky roads, marble madness, and Sonic 3d. My goal was to create a dreamlike experience with full resolution full speed graphics that would be easy to pick up and play.
+
+Features
+- 3D rendering system
+- procedurally generated levels
+- level increases in difficulty over time
+- 3D player sphere with shadow
+- mouse controls
+- colorful sky with stars
+*/
+'use strict';
+
+// HTML wrapper canvas
+const a = document.createElement('canvas');
+const c = a.getContext("2d");
+a.id = 'skyCanvas';
+document.getElementById('game').appendChild(a);
+a.width = innerWidth;
+a.height = innerHeight;
+
+////////////////////////////////////////////////
+
+const ENHANCED = 1;      // keyboard and touch input
+const test = 0;          // test stuff
+const cameraInFront = 3; // camera distance
+const F = .7;            // focal length
+
+// locals (remove from minified)
+let i, j, r, p, s, px, py;
+let ax, ay, bx, by, ex, ey, fx, fy;
+let mouseJustPressed, mouseMode, keyInput;
+
+// game variables
+let x=0, y=0, z=0, vy=0; // ship
+let gameStarted=false; let gamePaused=false;
+let trackGap = 0;        // track gap
+let mouseDown = 0;       // mouse jump
+let trackSx = 3;         // track side
+let trackSw = 3;         // track width
+let mouseX = a.width/2;  // mouse
+let trackRows = [];      // track
+
+// set draw color
+let hsl = (h, s, l, a=1)=> 
+    c.fillStyle = `hsl(${h},${s}%,${l}%,${a})`;
+
+// project point to screen
+let P = (px, py, dz) =>
+    [a.width/2 + 
+    (px-x+(dz-cameraInFront)**2/50*Math.cos((z+dz)/49))*a.height*F/dz,
+    a.height/2 - (py-2+dz*dz/50)*a.height*F/dz, a.height*F/dz];
+
+// main loop
+let update = () =>
+{
+    if (!gameStarted || gamePaused) return;
+    // background
+    for(i=500; i--;)
+    {
+        // sky
+        hsl(170+i/9+z, 70, 70-i/9);
+        c.fillRect(0, a.height*i/500, a.width, a.height/250);
+        
+        // stars
+        hsl(0, 0, 99);
+        c.fillRect((i*i + z*i/99)%a.width, i**3.3%a.height, i%4*a.height/500, i%4*a.height/500);
+    }
+
+    // track, far to near
+    for (r = z+40|0; r > z; r--)
+    {
+        // create new track rows if needed
+        for (i = trackRows.length; i <= r; )
+        {
+            // randomize new segment
+            if (trackGap < -8 & Math.random() < Math.min(.2,i/1e4))
+            {
+                // sometimes a gap
+                trackGap = 2 + Math.min(4, i/400);
+            }
+            if (Math.random() < .1)
+            {
+                // new span width 2-4
+                trackSw = 2 + Math.random()*3|0;
+                //trackSx = Math.random()*(8-trackSw)|0;
+                trackSx = Math.max(0, Math.min(7-trackSw, trackSx - 2 + Math.random()*5|0));
+            }
+            trackGap--;
+
+            // create the row
+            trackRows[i++] = p = [];
+            for (j = 7; j--;)
+            {
+                p[j] = i < 35 // start area
+                    | Math.random() > .9 // pillar
+                    | trackGap < 0 // gap
+                    & trackSx <= j & j < trackSx + trackSw // track
+                    & Math.random() > Math.min(.2,z/1e4); // holes
+            }
+        }
+        // draw the track row
+        for (j = 2; j--;)
+        for (i = 7; i--;)
+        {
+            if (trackRows[r][i])
+            {
+                // calculate grid points
+                [ax, ay] = P(i-3.5, 0, r-z);
+                [bx, by] = P(i-2.5, 0, r-z);
+                [ex, ey] = P(i-3.5, 0, r-z+1);
+                [fx, fy] = P(i-2.5, 0, r-z+1);
+
+                // draw the track tile
+                if (j)
+                {
+                    // back and sides
+                    hsl(99+(r>>7)*70, 60, 30+(r+i&1)*9);
+                    c.fillRect(ex,ey,fx-ex,(40-r+z)/30*a.height);
+                }
+                else
+                {
+                    // front
+                    hsl(99+(r>>7)*70, 60, 9+(r+i&1)*5);
+                    c.fillRect(ax,ay,bx-ax,(40-r+z)/30*a.height);
+
+                    // top
+                    hsl(99+(r>>7)*70, 60, 60+(r+i&1)*30);
+                    //if (test && ((r|0)==(z+cameraInFront|0)) && i==(Math.round(x)+3|0)) hsl(0,99,50)
+                    c.lineTo(ax, ay); c.lineTo(bx, by);
+                    c.lineTo(fx, fy); c.lineTo(ex, ey); 
+                    c.beginPath(c.fill());
+                }
+            }
+        }
+    }
+
+    // draw player
+    if (y >= 0 & trackRows[z+cameraInFront|0][Math.round(x+3)])
+    {
+        // draw player shadow
+        hsl(0, 0, 0, .5);
+        [px, py, s] = P(x, 0, cameraInFront);
+        c.ellipse(px, py, s/4, s/9, 0, 0, 9);
+        c.beginPath(c.fill());
+    }
+    for (i = 99; i--;)
+    {
+        // draw player
+        hsl(z/9-i/3, 90, 99-i*.7);
+        [px, py, s] = P(x+.1-i/1e3, y+.35-i/1e3, cameraInFront);
+        c.ellipse(px, py, i*s/300, i*s/300, 0, 0, 9);
+        c.beginPath(c.fill());
+    }
+
+    // update player
+    if (y > -4)
+    {
+        // update physics
+        if (ENHANCED)
+        {
+            if (mouseMode)
+                x += mouseX/a.width/2 - .25;
+            else
+            {
+                // keyboard controls
+                if (keyInput['d'] || keyInput['ArrowRight'])
+                    x += .1;
+                if (keyInput['a'] || keyInput['ArrowLeft'])
+                    x -= .1;
+            }
+        }
+        else
+            x += mouseX/a.width/2 - .25;
+        y += vy -= .006;
+
+        // ramp up speed
+        z += Math.min(.5, .2 + z/5e3);
+        if (test) z += .5
+
+        // check if close enough to land
+        if (y < 0 & y > -.3 & 
+            trackRows[z+cameraInFront|0][Math.round(x+3)])
+        {
+            // land and jump
+            y = vy = mouseDown;
+            if (ENHANCED && window.ontouchstart !== undefined)
+                mouseDown = 0; // touch jump
+        }
+        if (test && y < 0 & vy < 0)
+            y = vy = 0;
+    }
+    else if (ENHANCED)
+    {
+        if (mouseJustPressed)
+        {
+            showGameOver();
+        }
+    }
+
+    if (ENHANCED)
+        mouseJustPressed = 0;
+
+    // hud
+    if (test)
+    {
+        c.font = 'bold 56px impact';
+        for(i=9;i--;)
+        {
+            hsl(0, 99, i?50:100);
+            c.fillText((z|0), 9+ i, 62+i);
+        }
+    }
+}
+
+// mouse controls
+onmousemove = e => mouseX = e.x;
+onmousedown = e => mouseDown = .1;
+onmouseup   = e => mouseDown = 0;
+
+if (!ENHANCED)
+    setInterval(update, 16); // 60 fps update
+else
+{
+    // enhanced rendering system for smoother frame rate
+    let frameTimeLastMS = 0, frameTimeBufferMS=0;
+    const updateAnimation = (frameTimeMS=0)=>
+    {
+        requestAnimationFrame(updateAnimation);
+        
+        // update time keeping
+        let frameTimeDeltaMS = frameTimeMS - frameTimeLastMS;
+        frameTimeLastMS = frameTimeMS;
+        frameTimeBufferMS += frameTimeDeltaMS;
+        frameTimeBufferMS = Math.min(frameTimeBufferMS, 50);
+
+        // apply time delta smoothing, improves smoothness of framerate in some browsers
+        let deltaSmooth = 0;
+        if (frameTimeBufferMS < 0 && frameTimeBufferMS > -9)
+        {
+            // force an update each frame if time is close enough (not just a fast refresh rate)
+            deltaSmooth = frameTimeBufferMS;
+            frameTimeBufferMS = 0;
+        }
+        
+        // update multiple frames if necessary in case of slow framerate
+        for (;frameTimeBufferMS >= 0; frameTimeBufferMS -= 1e3 / 60)
+            update();
+
+        // add the time smoothing back in
+        frameTimeBufferMS += deltaSmooth;
+    }
+
+    mouseMode = 1;
+    keyInput = [];
+    onmousemove = e => mouseX = e.clientX;
+    onmousedown = e =>
+    {
+        mouseDown = .1; 
+        mouseJustPressed = 1;
+        mouseMode = 1;
+    }
+
+    onkeydown = e=>
+    {
+        mouseMode = 0;
+        keyInput[e.key] = 1;
+        if (e.key === 'r')
+        {
+            resetGame();
+        }
+        if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w')
+        {
+            mouseDown = .1; 
+            mouseJustPressed = 1;
+        }
+    }
+    onkeyup = e=>
+    {
+        keyInput[e.key] = 0;
+        if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w')
+        {
+            mouseDown = 0; 
+        }
+    }
+
+    onresize = e=>
+    {
+        a.width = innerWidth;
+        a.height = innerHeight;
+    }
+
+    // touch support
+    if (window.ontouchstart !== undefined)
+    {
+        // disable mobile text selection, long-press callout/magnifier, and touch gestures
+        for (const el of [document.documentElement, document.body, a])
+        {
+            el.style.userSelect = el.style.webkitUserSelect = 'none';
+            el.style.webkitTouchCallout = 'none';
+            el.style.touchAction = 'none';
+        }
+
+        // simulate mouse down on touch start
+        ontouchstart = e=> { e.preventDefault(); onmouseup(); };
+        ontouchend = e=> { e.preventDefault(); onmousedown(); };
+        ontouchmove = e=>
+        {
+            e.preventDefault();
+            // simulate mouse move on touch move
+            for (const touch of e.touches)
+                onmousemove({ clientX: touch.clientX, clientY: touch.clientY });
+        }
+    }
+    
+    
+// UI integration
+const menu = document.getElementById('menu');
+const controls = document.getElementById('controls');
+const gameover = document.getElementById('gameover');
+const hud = document.getElementById('hud');
+const scoreEl = document.getElementById('score');
+const finalScore = document.getElementById('finalScore');
+const pauseText = document.getElementById('pauseText');
+
+function resetGame(){
+    x = y = z = vy = trackGap = 0;
+    trackSx = trackSw = 3;
+    trackRows = [];
+    mouseJustPressed = 0;
+    gameStarted = true;
+    gamePaused = false;
+    menu.classList.add('hidden');
+    controls.classList.add('hidden');
+    gameover.classList.add('hidden');
+    hud.classList.add('active');
+    pauseText.textContent = 'PAUSE';
+}
+
+function showGameOver(){
+    if(!gameStarted) return;
+    gameStarted = false;
+    gamePaused = false;
+    hud.classList.remove('active');
+    finalScore.textContent = Math.floor(z);
+    gameover.classList.remove('hidden');
+}
+
+document.getElementById('play').onclick = resetGame;
+document.getElementById('retry').onclick = resetGame;
+document.getElementById('home').onclick = () => {
+    gameStarted = false; gamePaused = false;
+    gameover.classList.add('hidden');
+    hud.classList.remove('active');
+    menu.classList.remove('hidden');
+};
+document.getElementById('how').onclick = () => {
+    menu.classList.add('hidden'); controls.classList.remove('hidden');
+};
+document.getElementById('back').onclick = () => {
+    controls.classList.add('hidden'); menu.classList.remove('hidden');
+};
+document.getElementById('pause').onclick = () => {
+    if(!gameStarted) return;
+    gamePaused = !gamePaused;
+    pauseText.textContent = gamePaused ? 'REPRENDRE' : 'PAUSE';
+};
+
+document.getElementById('mobileJump').onclick = () => {
+    if(gameStarted){ mouseDown=.1; mouseJustPressed=1; }
+};
+
+setInterval(() => {
+    if(gameStarted) scoreEl.textContent = Math.floor(z);
+}, 100);
+
+
+updateAnimation();
+}
+
+// Skydreams by KilledByAPixel 2026 - 1019 bytes!
+//for(_=']=o(Ge=F=F>S=E--;)D;eDC),BBc.Av,w@p,q#,${"i(!99 e/-1e3,=(e,h,2+500,e*l/30Ge-a.heighte%4*/)**.7/t,B[m,n,lGQc.fill&&(onmouse,(40-g+M)/30**(g+e&1)3Aellipse(m,n,Math.min(.5,g-M	for($&d[M+3|0][round(Q+3)]a.widthAlineTo(! +70*(g>>7B6BRect(AbeginPath(())random()Q=$=M=P=R=S=T=b=3,I=/2,d=[],ia,t=1)=>{StylF`hsl(${e}"h}%"a}%"t})`},ot)=>[/(e-Q+(t-3)**2/*cos((M+t)/49)/2-(h-t*t/.7*/t];movFF>I=e.x,downE.1,upEsetInterval(F>{F0C!170+9+M,770-9*,/2B! (e*e+M* )%,e**3.3%,0);g=M+40|0;g>M;g--){Fd.length;e<=g;)R<-8&<.2,1e4)R=4,400)B<.1b=3*|T=max(7-b,T-5*|0))BR--,d[e++]=s=[],f=7;fDs[f]=e<35|.9<|R<0&T<=f&f<T+b&>.2,M/1e4);f=2;fDF7Cd[g][e][#3	B[r,u2	B[@3	+1B[x,y2	+1Bf?(30+9@,x-v)):(9+5#,r-pB60+30#r,ux,y@))}0<=!.5,l/4,l/9,9BF C!M/9-3,9 -.7*e+.1$+.359;-4<$Q+=I//2-.25,$+=P-=.006,M+=.5,.M/5e3B$<0&-.3<)$=P=S)},16)';G=/[-#@-G]/.exec(_);)with(_.split(G))_=join(shift());eval(_)
+</script>
+</body>
+</html>
