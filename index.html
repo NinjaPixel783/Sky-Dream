@@ -39,20 +39,81 @@ button:active{transform:scale(.97)}
 #mobileJump{display:none;position:absolute;right:22px;bottom:28px;width:72px;height:72px;border-radius:50%;
  background:rgba(255,255,255,.16);color:white;border:1px solid rgba(255,255,255,.25)}
 @media(max-width:700px){#mobileJump{display:block}.panel{padding:26px}.secondary{margin:8px 0 0}}
+
+/* Enhanced interface */
+.panel{
+  border-color:rgba(255,255,255,.22);
+  background:linear-gradient(145deg,rgba(10,25,48,.66),rgba(7,14,28,.42));
+  box-shadow:0 30px 100px rgba(0,0,0,.45),inset 0 1px rgba(255,255,255,.18);
+}
+.panel:before{
+  content:"";position:absolute;inset:0;border-radius:28px;pointer-events:none;
+  background:radial-gradient(circle at 50% 0,rgba(255,255,255,.12),transparent 42%);
+}
+.panel>*{position:relative}
+.logo{filter:drop-shadow(0 12px 30px rgba(0,0,0,.3))}
+#menu .logo{font-size:clamp(50px,10vw,92px)}
+#menu .sub{font-size:15px;line-height:1.65}
+.menu-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+button{
+  min-width:140px;
+  background:linear-gradient(180deg,#fff,#dce8ff);
+  color:#07111f;
+}
+button.secondary{
+  background:rgba(255,255,255,.08);
+  color:#fff;
+}
+#hud{padding:18px;gap:10px}
+#hud .hudbox{min-width:105px}
+#pause{cursor:pointer;min-width:105px}
+#respawn{
+  display:none;position:absolute;right:18px;top:82px;pointer-events:auto;
+  padding:10px 14px;min-width:auto;border-radius:13px;font-size:12px;
+  background:rgba(8,18,35,.5);color:#fff;border:1px solid rgba(255,255,255,.16);
+  backdrop-filter:blur(14px)
+}
+#hud.active #respawn{display:block}
+#toast{
+  position:absolute;left:50%;top:24px;transform:translate(-50%,-15px);
+  opacity:0;transition:.25s;padding:10px 16px;border-radius:999px;
+  background:rgba(8,18,35,.55);border:1px solid rgba(255,255,255,.16);
+  backdrop-filter:blur(14px);font-size:12px;font-weight:800;letter-spacing:.04em
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+
+#musicControls{position:absolute;right:18px;top:130px;display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:15px;background:rgba(8,18,35,.48);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(14px);pointer-events:auto}#musicBtn{min-width:38px;width:38px;height:38px;padding:0;border-radius:11px;font-size:17px;background:rgba(255,255,255,.1);color:white;border:1px solid rgba(255,255,255,.1)}#volumeSlider{width:90px;accent-color:white;cursor:pointer}@media(max-width:700px){#musicControls{right:18px;top:132px}}
 </style>
 </head>
 <body>
-  <audio id="music" loop>
-    <source src="musique.mp3" type="audio/mpeg">
-</audio>
+<audio id="bgMusic" loop preload="auto"><source src="musique.mp3" type="audio/mpeg"></audio>
 <div id="game"></div>
 
 <div id="ui">
   <div id="menu" class="panel">
     <div class="logo">SKYDREAMS<span>Endless sky experience</span></div>
     <div class="sub">Traverse un monde 3D généré à l'infini.<br>Évite les trous et va le plus loin possible.</div>
-    <button id="play">JOUER</button>
-    <button id="how" class="secondary">CONTRÔLES</button>
+    <div id="menuStats" style="display:flex;justify-content:center;gap:12px;margin:0 0 20px">
+      <div class="hudbox"><div class="label">Pièces</div><div id="menuCoins" class="value">0</div></div>
+      <div class="hudbox"><div class="label">Record</div><div id="bestScore" class="value">0</div></div>
+    </div>
+    <div class="menu-actions">
+      <button id="play">JOUER</button>
+      <button id="shopBtn" class="secondary">BOUTIQUE</button>
+      <button id="how" class="secondary">CONTRÔLES</button>
+    </div>
+  </div>
+
+  <div id="shop" class="panel hidden">
+    <div class="logo" style="font-size:42px">BOUTIQUE</div>
+    <div class="sub">Utilise tes pièces pour débloquer des apparences.</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0">
+      <button class="skin" data-cost="0" data-skin="classic">⚪<br><small>Classique<br>GRATUIT</small></button>
+      <button class="skin" data-cost="50" data-skin="gold">🟡<br><small>Gold<br>50 🪙</small></button>
+      <button class="skin" data-cost="150" data-skin="rainbow">🌈<br><small>Rainbow<br>150 🪙</small></button>
+    </div>
+    <div style="margin-bottom:18px;font-weight:800">🪙 <span id="shopCoins">0</span> pièces</div>
+    <button id="shopBack">RETOUR</button>
   </div>
 
   <div id="controls" class="panel hidden">
@@ -63,7 +124,7 @@ button:active{transform:scale(.97)}
 
   <div id="gameover" class="panel hidden">
     <div class="logo" style="font-size:48px">GAME OVER</div>
-    <div class="sub">Distance parcourue</div>
+    <div class="sub">Tu as atteint</div>
     <div id="finalScore" style="font-size:54px;font-weight:900;margin:-5px 0 25px">0</div>
     <button id="retry">REJOUER</button>
     <button id="home" class="secondary">MENU</button>
@@ -71,6 +132,7 @@ button:active{transform:scale(.97)}
 
   <div id="hud">
     <div class="hudbox"><div class="label">Distance</div><div id="score" class="value">0</div></div>
+    <div class="hudbox"><div class="label">Pièces</div><div id="coins" class="value">0</div></div>
     <div class="hudbox" id="pause"><div class="label">État</div><div id="pauseText" class="value">PAUSE</div></div>
   </div>
   <div class="help">Souris pour diriger · clic pour sauter · R pour recommencer</div>
@@ -78,13 +140,6 @@ button:active{transform:scale(.97)}
 </div>
 
 <script>
-  const music = document.getElementById("music");
-
-document.getElementById("play").onclick = () => {
-    music.volume = 0.35;
-    music.play();
-    resetGame();
-};
 /*
 SKYDREAMS 🌈 A 3D 1K FEVER DREAM
 COPYRIGHT 2026 ☁️ KILLED BY A PIXEL
@@ -126,6 +181,10 @@ let mouseJustPressed, mouseMode, keyInput;
 // game variables
 let x=0, y=0, z=0, vy=0; // ship
 let gameStarted=false; let gamePaused=false;
+let coins = Number(localStorage.getItem('skyCoins') || 0);
+let bestScore = Number(localStorage.getItem('skyBest') || 0);
+let selectedSkin = localStorage.getItem('skySkin') || 'classic';
+let coinRows = [];
 let trackGap = 0;        // track gap
 let mouseDown = 0;       // mouse jump
 let trackSx = 3;         // track side
@@ -227,6 +286,32 @@ let update = () =>
         }
     }
 
+    // coins
+    for (let cr = Math.max(1, z|0); cr < z+40; cr++) {
+        if (coinRows[cr] === undefined) {
+            coinRows[cr] = Math.random() < .24 ? (Math.random()*7|0) : -1;
+        }
+        const ci = coinRows[cr];
+        if (ci >= 0) {
+            const [cx,cy,cs] = P(ci-3, .25, cr-z);
+            hsl(45, 95, 58);
+            c.beginPath();
+            c.arc(cx, cy, Math.max(2, cs*.11), 0, Math.PI*2);
+            c.fill();
+            hsl(45, 100, 90);
+            c.beginPath();
+            c.arc(cx-cs*.025, cy-cs*.025, Math.max(1, cs*.035), 0, Math.PI*2);
+            c.fill();
+
+            // collect when close to player
+            if (cr === (z+cameraInFront)|0 && Math.abs(x-(ci-3)) < .55 && y > -.2 && y < 1.2) {
+                coins++;
+                localStorage.setItem('skyCoins', coins);
+                coinRows[cr] = -2;
+            }
+        }
+    }
+
     // draw player
     if (y >= 0 & trackRows[z+cameraInFront|0][Math.round(x+3)])
     {
@@ -239,7 +324,9 @@ let update = () =>
     for (i = 99; i--;)
     {
         // draw player
-        hsl(z/9-i/3, 90, 99-i*.7);
+        if(selectedSkin === 'gold') hsl(45, 95, 70-i*.25);
+        else if(selectedSkin === 'rainbow') hsl((z*3+i*4)%360, 90, 99-i*.7);
+        else hsl(z/9-i/3, 90, 99-i*.7);
         [px, py, s] = P(x+.1-i/1e3, y+.35-i/1e3, cameraInFront);
         c.ellipse(px, py, i*s/300, i*s/300, 0, 0, 9);
         c.beginPath(c.fill());
@@ -359,7 +446,7 @@ else
         keyInput[e.key] = 1;
         if (e.key === 'r')
         {
-            resetGame();
+            respawn();
         }
         if (e.key === ' ' || e.key === 'ArrowUp' || e.key === 'w')
         {
@@ -406,6 +493,15 @@ else
     }
     
     
+// Music system
+const bgMusic=document.getElementById('bgMusic'),musicBtn=document.getElementById('musicBtn'),volumeSlider=document.getElementById('volumeSlider');
+let musicMuted=localStorage.getItem('skyMusicMuted')==='1',musicVolume=Number(localStorage.getItem('skyMusicVolume')||35)/100;
+bgMusic.volume=musicMuted?0:musicVolume;musicBtn.textContent=musicMuted?'🔇':'🔊';volumeSlider.value=Math.round(musicVolume*100);
+function fadeMusic(target,duration=700){const start=bgMusic.volume,t=performance.now();function step(n){const p=Math.min(1,(n-t)/duration);bgMusic.volume=start+(target-start)*p;if(p<1)requestAnimationFrame(step)}requestAnimationFrame(step)}
+function startMusic(){if(musicMuted)return;bgMusic.volume=0;bgMusic.play().then(()=>fadeMusic(musicVolume,900)).catch(()=>{})}
+musicBtn.onclick=()=>{musicMuted=!musicMuted;localStorage.setItem('skyMusicMuted',musicMuted?'1':'0');musicBtn.textContent=musicMuted?'🔇':'🔊';if(musicMuted)fadeMusic(0,350);else{bgMusic.play().catch(()=>{});fadeMusic(musicVolume,600)}};
+volumeSlider.oninput=()=>{musicVolume=Number(volumeSlider.value)/100;localStorage.setItem('skyMusicVolume',musicVolume);if(!musicMuted)bgMusic.volume=musicVolume};
+
 // UI integration
 const menu = document.getElementById('menu');
 const controls = document.getElementById('controls');
@@ -414,16 +510,92 @@ const hud = document.getElementById('hud');
 const scoreEl = document.getElementById('score');
 const finalScore = document.getElementById('finalScore');
 const pauseText = document.getElementById('pauseText');
+const shop = document.getElementById('shop');
+const menuCoins = document.getElementById('menuCoins');
+const shopCoins = document.getElementById('shopCoins');
+const coinsEl = document.getElementById('coins');
+const bestScoreEl = document.getElementById('bestScore');
+const toast = document.getElementById('toast');
+
+function notify(message){
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => toast.classList.remove('show'), 1300);
+}
+
+function respawn(){
+    x = 0; y = 0; vy = 0;
+    trackGap = 0;
+    trackSx = trackSw = 3;
+    trackRows = [];
+    coinRows = [];
+    mouseDown = 0;
+    mouseJustPressed = 0;
+    gameStarted = true;
+    gamePaused = false;
+    gameover.classList.add('hidden');
+    menu.classList.add('hidden');
+    controls.classList.add('hidden');
+    shop.classList.add('hidden');
+    hud.classList.add('active');
+    pauseText.textContent = 'PAUSE';
+    notify('RESPAWN');
+}
+
+
+function syncStats(){
+    menuCoins.textContent = coins;
+    shopCoins.textContent = coins;
+    coinsEl.textContent = coins;
+    bestScoreEl.textContent = bestScore;
+}
+syncStats();
+
+document.getElementById('shopBtn').onclick = () => {
+    menu.classList.add('hidden');
+    shop.classList.remove('hidden');
+    syncStats();
+};
+document.getElementById('shopBack').onclick = () => {
+    shop.classList.add('hidden');
+    menu.classList.remove('hidden');
+    syncStats();
+};
+
+document.querySelectorAll('.skin').forEach(btn => {
+    btn.style.background = 'rgba(255,255,255,.1)';
+    btn.style.color = 'white';
+    btn.style.border = '1px solid rgba(255,255,255,.15)';
+    btn.style.minHeight = '95px';
+    btn.onclick = () => {
+        const cost = Number(btn.dataset.cost);
+        const skin = btn.dataset.skin;
+        if(selectedSkin === skin) return;
+        if(coins >= cost){
+            coins -= cost;
+            selectedSkin = skin;
+            localStorage.setItem('skyCoins', coins);
+            localStorage.setItem('skySkin', selectedSkin);
+            syncStats();
+        } else {
+            btn.animate([{transform:'translateX(-5px)'},{transform:'translateX(5px)'},{transform:'translateX(0)'}],{duration:220});
+        }
+    };
+});
+
 
 function resetGame(){
     x = y = z = vy = trackGap = 0;
     trackSx = trackSw = 3;
     trackRows = [];
+    coinRows = [];
     mouseJustPressed = 0;
     gameStarted = true;
     gamePaused = false;
     menu.classList.add('hidden');
     controls.classList.add('hidden');
+    shop.classList.add('hidden');
     gameover.classList.add('hidden');
     hud.classList.add('active');
     pauseText.textContent = 'PAUSE';
@@ -435,11 +607,13 @@ function showGameOver(){
     gamePaused = false;
     hud.classList.remove('active');
     finalScore.textContent = Math.floor(z);
+    syncStats();
     gameover.classList.remove('hidden');
 }
 
-document.getElementById('play').onclick = resetGame;
-document.getElementById('retry').onclick = resetGame;
+document.getElementById('play').onclick = () => { startMusic(); resetGame(); };
+document.getElementById('retry').onclick = () => { startMusic(); resetGame(); };
+document.getElementById('respawn').onclick = () => { startMusic(); respawn(); };
 document.getElementById('home').onclick = () => {
     gameStarted = false; gamePaused = false;
     gameover.classList.add('hidden');
@@ -455,7 +629,7 @@ document.getElementById('back').onclick = () => {
 document.getElementById('pause').onclick = () => {
     if(!gameStarted) return;
     gamePaused = !gamePaused;
-    pauseText.textContent = gamePaused ? 'REPRENDRE' : 'PAUSE';
+    pauseText.textContent = gamePaused ? 'REPRENDRE' : 'PAUSE'; if(gamePaused) fadeMusic(0,400); else if(!musicMuted){bgMusic.play().catch(()=>{});fadeMusic(musicVolume,600);}
 };
 
 document.getElementById('mobileJump').onclick = () => {
@@ -463,7 +637,14 @@ document.getElementById('mobileJump').onclick = () => {
 };
 
 setInterval(() => {
-    if(gameStarted) scoreEl.textContent = Math.floor(z);
+    if(gameStarted) {
+        scoreEl.textContent = Math.floor(z);
+        coinsEl.textContent = coins;
+        if(Math.floor(z) > bestScore) {
+            bestScore = Math.floor(z);
+            localStorage.setItem('skyBest', bestScore);
+        }
+    }
 }, 100);
 
 
