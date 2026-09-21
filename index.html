@@ -42,6 +42,9 @@ button:active{transform:scale(.97)}
 </style>
 </head>
 <body>
+  <audio id="music" loop>
+    <source src="musique.mp3" type="audio/mpeg">
+</audio>
 <div id="game"></div>
 
 <div id="ui">
@@ -75,6 +78,13 @@ button:active{transform:scale(.97)}
 </div>
 
 <script>
+  const music = document.getElementById("music");
+
+document.getElementById("play").onclick = () => {
+    music.volume = 0.35;
+    music.play();
+    resetGame();
+};
 /*
 SKYDREAMS 🌈 A 3D 1K FEVER DREAM
 COPYRIGHT 2026 ☁️ KILLED BY A PIXEL
