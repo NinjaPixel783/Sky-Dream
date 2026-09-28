@@ -116,48 +116,197 @@ const save=()=>{try{localStorage.setItem('skyd',JSON.stringify(S))}catch(e){}};
 const LV=[['Prairie céleste',400,200,120,.17,.05,.03],['Océan de nuages',700,215,175,.19,.07,.05],['Crépuscule',1000,280,320,.21,.09,.07],['Aurore rose',1400,330,190,.23,.11,.09],['Tempête solaire',1900,20,50,.25,.13,.11],['Infini arc-en-ciel',1e9,0,0,.2,.12,.10]];
 const SK=[['Bulle',0,'#7fe9ff','#1466ff'],['Bonbon',30,'#ff9ad0','#d1146f'],['Menthe',60,'#b6ffd6','#0aa86b'],['Lave',90,'#ffd166','#e01e1e'],['Galaxie',130,'#c9a6ff','#2a0a6b'],['Or',190,'#fff3a0','#c98a00'],['Glace',260,'#ffffff','#7aa7d9'],['Arc-en-ciel',400]];
 
-// ---------- audio ----------
+<script>
+/* ---------- audio : nouvelle musique ---------- */
 let ac,mg,sg,mu,mstep=0,nt=0;
+
 const mf=n=>440*2**((n-69)/12);
-function setVol(){if(!ac)return;mg.gain.value=S.mute?0:.5;sg.gain.value=S.mute?0:.6}
+
+function setVol(){
+  if(!ac)return;
+  mg.gain.value=S.mute?0:.5;
+  sg.gain.value=S.mute?0:.6;
+}
+
 function initA(){
-  if(ac){if(ac.state==='suspended')ac.resume();return}
+  if(ac){
+    if(ac.state==='suspended')ac.resume();
+    return;
+  }
+
   try{
     ac=new(window.AudioContext||window.webkitAudioContext)();
-    mg=ac.createGain();sg=ac.createGain();mg.connect(ac.destination);sg.connect(ac.destination);
-    mu=ac.createGain();const f=ac.createBiquadFilter();f.type='lowpass';f.frequency.value=1800;
-    const d=ac.createDelay();d.delayTime.value=.33;const fb=ac.createGain();fb.gain.value=.35;
-    mu.connect(f);f.connect(mg);f.connect(d);d.connect(fb);fb.connect(d);d.connect(mg);
-    setVol();nt=ac.currentTime+.1;setInterval(sched,100);
+
+    mg=ac.createGain();
+    sg=ac.createGain();
+
+    mg.connect(ac.destination);
+    sg.connect(ac.destination);
+
+    /* Musique */
+    mu=ac.createGain();
+    mu.gain.value=.7;
+
+    const filter=ac.createBiquadFilter();
+    filter.type='lowpass';
+    filter.frequency.value=3200;
+    filter.Q.value=.7;
+
+    mu.connect(filter);
+    filter.connect(mg);
+
+    setVol();
+
+    nt=ac.currentTime+.1;
+    setInterval(sched,100);
+
   }catch(e){}
 }
+
 function tone(f,t,d,ty,v,dst,f2){
-  const o=ac.createOscillator(),g=ac.createGain();o.type=ty;o.frequency.setValueAtTime(f,t);
-  if(f2)o.frequency.exponentialRampToValueAtTime(f2,t+d);
-  g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);
-  o.connect(g);g.connect(dst);o.start(t);o.stop(t+d+.02);
+  const o=ac.createOscillator();
+  const g=ac.createGain();
+
+  o.type=ty;
+  o.frequency.setValueAtTime(f,t);
+
+  if(f2){
+    o.frequency.exponentialRampToValueAtTime(f2,t+d);
+  }
+
+  g.gain.setValueAtTime(v,t);
+  g.gain.exponentialRampToValueAtTime(.001,t+d);
+
+  o.connect(g);
+  g.connect(dst);
+
+  o.start(t);
+  o.stop(t+d+.02);
 }
-const CH=[[57,60,64],[53,57,60],[48,52,55],[55,59,62]];
+
+
+/* 
+   Nouvelle progression :
+   C → G → Am → F
+   Ambiance arcade / aventure
+*/
+const CH=[
+  [48,52,55,60], // C
+  [43,47,50,55], // G
+  [45,48,52,57], // Am
+  [41,45,48,53]  // F
+];
+
 function sched(){
+
   if(!ac||ac.state!=='running')return;
-  while(nt<ac.currentTime+.3){
-    const ch=CH[mstep>>3&3],k=mstep&7;
-    tone(mf(ch[[0,1,2,1,2,1,2,1][k]]+12),nt,.35,'triangle',.16,mu);
-    if(k%4==0)tone(mf(ch[0]-12),nt,.7,'sine',.32,mu);
-    if(k==0)ch.forEach(n=>tone(mf(n),nt,1.8,'sawtooth',.03,mu));
-    if(k==3||k==6)tone(mf(ch[2]+24),nt,.25,'sine',.07,mu);
-    nt+=.27-Math.min(lv,5)*.012;mstep++;
+
+  while(nt<ac.currentTime+.35){
+
+    const chord=CH[Math.floor(mstep/8)%4];
+    const beat=mstep%8;
+
+    /* Mélodie principale */
+    const melody=[
+      chord[2]+12,
+      chord[3]+12,
+      chord[1]+12,
+      chord[2]+12,
+      chord[3]+12,
+      chord[2]+12,
+      chord[1]+12,
+      chord[0]+12
+    ];
+
+    tone(
+      mf(melody[beat]),
+      nt,
+      .22,
+      'triangle',
+      .11,
+      mu
+    );
+
+    /* Basse */
+    if(beat===0||beat===4){
+      tone(
+        mf(chord[0]-12),
+        nt,
+        .42,
+        'sine',
+        .24,
+        mu
+      );
+    }
+
+    /* Petit contretemps */
+    if(beat===2||beat===6){
+      tone(
+        mf(chord[2]+12),
+        nt,
+        .16,
+        'square',
+        .045,
+        mu
+      );
+    }
+
+    /* Accord léger */
+    if(beat===0){
+      chord.forEach((n,i)=>{
+        tone(
+          mf(n+12),
+          nt+i*.015,
+          .8,
+          'triangle',
+          .025,
+          mu
+        );
+      });
+    }
+
+    nt+=.24;
+    mstep++;
   }
 }
+
+
+/* ---------- effets ---------- */
+
 function sfx(n){
-  if(!ac||S.mute)return;const t=ac.currentTime;
-  if(n=='j')tone(300,t,.18,'sine',.5,sg,720);
-  if(n=='l')tone(150,t,.12,'sine',.5,sg,70);
-  if(n=='c'){tone(880,t,.1,'square',.14,sg);tone(1320,t+.07,.2,'square',.14,sg)}
-  if(n=='f')tone(520,t,.8,'sawtooth',.22,sg,60);
-  if(n=='w')[523,659,784,1047].forEach((f,i)=>tone(f,t+i*.11,.35,'triangle',.4,sg));
-  if(n=='u')tone(660,t,.08,'square',.09,sg);
+
+  if(!ac||S.mute)return;
+
+  const t=ac.currentTime;
+
+  if(n=='j'){
+    tone(330,t,.15,'sine',.45,sg,760);
+  }
+
+  if(n=='l'){
+    tone(170,t,.14,'sine',.5,sg,65);
+  }
+
+  if(n=='c'){
+    tone(880,t,.08,'square',.14,sg);
+    tone(1320,t+.06,.18,'square',.14,sg);
+  }
+
+  if(n=='f'){
+    tone(500,t,.7,'sawtooth',.18,sg,55);
+  }
+
+  if(n=='w'){
+    [523,659,784,1047].forEach((f,i)=>{
+      tone(f,t+i*.1,.3,'triangle',.35,sg);
+    });
+  }
+
+  if(n=='u'){
+    tone(660,t,.07,'square',.08,sg);
+  }
 }
+</script>
 
 // ---------- monde ----------
 let st='menu',lv=Math.min(S.unl,LV.length)-1,x=0,y=0,z=0,vy=0,tx=0,jb=0,T=0,run=0,shake=0,falling=0,parts=[];
