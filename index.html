@@ -137,70 +137,8 @@ function tone(f,t,d,ty,v,dst,f2){
   g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);
   o.connect(g);g.connect(dst);o.start(t);o.stop(t+d+.02);
 }
-cconst CH=[
-  [60,64,67],
-  [57,60,64],
-  [53,57,60],
-  [55,59,62]
-];
-
+const CH=[[57,60,64],[53,57,60],[48,52,55],[55,59,62]];
 function sched(){
-  if(!ac||ac.state!=='running')return;
-
-  while(nt<ac.currentTime+.3){
-
-    const ch=CH[(mstep>>3)&3];
-    const k=mstep&7;
-
-    // Mélodie
-    const notes=[
-      ch[2]+12,
-      ch[1]+12,
-      ch[0]+12,
-      ch[1]+12,
-      ch[2]+12,
-      ch[1]+12,
-      ch[0]+12,
-      ch[1]+12
-    ];
-
-    tone(
-      mf(notes[k]),
-      nt,
-      .22,
-      'triangle',
-      .13,
-      mu
-    );
-
-    // Basse
-    if(k===0||k===4){
-      tone(
-        mf(ch[0]-12),
-        nt,
-        .5,
-        'sine',
-        .25,
-        mu
-      );
-    }
-
-    // Petites notes d'accompagnement
-    if(k===2||k===6){
-      tone(
-        mf(ch[1]+12),
-        nt,
-        .14,
-        'square',
-        .045,
-        mu
-      );
-    }
-
-    nt+=.27-Math.min(lv,5)*.012;
-    mstep++;
-  }
-}{
   if(!ac||ac.state!=='running')return;
   while(nt<ac.currentTime+.3){
     const ch=CH[mstep>>3&3],k=mstep&7;
