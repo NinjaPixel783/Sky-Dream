@@ -118,18 +118,26 @@ const SK=[['Bulle',0,'#7fe9ff','#1466ff'],['Bonbon',30,'#ff9ad0','#d1146f'],['Me
 
 // ---------- audio ----------
 let ac,mg,sg,mu,mstep=0,nt=0;
+let music=new Audio('music.mp3');
+music.loop=true;
+music.preload='auto';
+music.volume=.55;
 
 const mf=n=>440*2**((n-69)/12);
 
 function setVol(){
-  if(!ac)return;
-  mg.gain.value=S.mute?0:.48;
-  sg.gain.value=S.mute?0:.62;
+  if(ac){
+    mg.gain.value=S.mute?0:.48;
+    sg.gain.value=S.mute?0:.62;
+  }
+  music.volume=S.mute?0:.55;
 }
 
 function initA(){
   if(ac){
     if(ac.state==='suspended')ac.resume();
+    setVol();
+    music.play().catch(()=>{});
     return;
   }
 
@@ -154,8 +162,8 @@ function initA(){
     f.connect(mg);
 
     setVol();
-    nt=ac.currentTime+.08;
-    setInterval(sched,70);
+    setVol();
+    music.play().catch(()=>{});
   }catch(e){}
 }
 
