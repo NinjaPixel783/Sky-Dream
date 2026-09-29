@@ -115,7 +115,18 @@ const save=()=>{try{localStorage.setItem('skyd',JSON.stringify(S))}catch(e){}};
 
 // nom, objectif, teinte ciel, teinte piste, vitesse, chance de trou, chance de case vide
 const LV=[['Prairie céleste',400,200,120,.17,.05,.03],['Océan de nuages',700,215,175,.19,.07,.05],['Crépuscule',1000,280,320,.21,.09,.07],['Aurore rose',1400,330,190,.23,.11,.09],['Tempête solaire',1900,20,50,.25,.13,.11],['Infini arc-en-ciel',1e9,0,0,.2,.12,.10]];
-const SK=[['Bulle',0,'#7fe9ff','#1466ff'],['Bonbon',30,'#ff9ad0','#d1146f'],['Menthe',60,'#b6ffd6','#0aa86b'],['Lave',90,'#ffd166','#e01e1e'],['Galaxie',130,'#c9a6ff','#2a0a6b'],['Or',190,'#fff3a0','#c98a00'],['Glace',260,'#ffffff','#7aa7d9'],['Arc-en-ciel',400]];
+const SK=[
+  ['Sky',0,'#8eeaff','#062c7a','sky'],
+  ['Fire',30,'#fff6a0','#8b0800','fire'],
+  ['Ice',60,'#b9f7ff','#0872c9','ice'],
+  ['Toxic',90,'#eaff9c','#176b00','toxic'],
+  ['Void',130,'#9b5cff','#180044','void'],
+  ['Gold',190,'#fffbd0','#8b4c00','gold'],
+  ['Neon',260,'#00ffff','#073b8f','neon'],
+  ['Lava',330,'#ffff9c','#4b0000','lava'],
+  ['Galaxy',400,'#ff8cff','#020018','galaxy'],
+  ['Rainbow',500,'#ffffff','#a64bff','rainbow']
+];
 
 // ---------- audio ----------
 let ac,mg,sg,mu,mstep=0,nt=0;
@@ -355,6 +366,90 @@ const P=(a,b,d)=>{const k=H*.7/d;return[W/2+(a-x+(d-3)**2/50*Math.cos((z+d)/49))
 const hsl=(h,s,l,a=1)=>c.fillStyle=`hsl(${h},${s}%,${l}%,${a})`;
 const skc=()=>{const s=SK[S.skin];return[s[2]||`hsl(${z*3%360},90%,65%)`,s[3]||`hsl(${(z*3+50)%360},90%,40%)`]};
 
+function drawBallFX(a,b,k,R,c1,c2){
+  const theme=SK[S.skin][4]||'sky';
+  const t=T*.08;
+
+  // Traînée commune, plus ou moins longue selon le skin
+  c.save();
+  c.globalCompositeOperation='lighter';
+  for(let i=1;i<=7;i++){
+    const al=(.16*(8-i))/7;
+    const yy=b+i*R*.48+Math.sin(t+i*.7)*R*.12;
+    c.globalAlpha=al;
+    c.fillStyle=c1;
+    c.beginPath();
+    c.arc(a,yy,R*(1-i*.075),0,7);
+    c.fill();
+  }
+  c.globalAlpha=1;
+
+  if(theme==='fire'||theme==='lava'){
+    for(let i=0;i<7;i++){
+      const an=t*1.8+i*.9;
+      const px=a+Math.cos(an)*R*(.7+i*.12);
+      const py=b+Math.sin(an)*R*(.7+i*.12)+R*.8;
+      c.globalAlpha=.75-i*.08;
+      c.fillStyle=i%2?'#ffb000':'#ff3b00';
+      c.beginPath();c.arc(px,py,R*(.10+i*.015),0,7);c.fill();
+    }
+  }
+
+  if(theme==='ice'){
+    c.strokeStyle='#dfffff';c.lineWidth=Math.max(1,k*.035);c.globalAlpha=.8;
+    for(let i=0;i<4;i++){
+      const an=t+i*Math.PI/2;
+      const px=a+Math.cos(an)*R*1.7,py=b+Math.sin(an)*R*1.7;
+      c.beginPath();c.moveTo(px,py-R*.2);c.lineTo(px+R*.15,py);c.lineTo(px,py+R*.2);c.stroke();
+    }
+  }
+
+  if(theme==='toxic'){
+    c.fillStyle='#9aff38';
+    for(let i=0;i<5;i++){
+      const px=a+Math.sin(t*1.4+i)*R*(1.1+i*.12);
+      const py=b+R*(1+i*.18);
+      c.globalAlpha=.55;
+      c.beginPath();c.arc(px,py,R*(.12+i*.02),0,7);c.fill();
+    }
+  }
+
+  if(theme==='void'||theme==='neon'||theme==='galaxy'){
+    c.globalAlpha=.75;
+    c.strokeStyle=theme==='void'?'#c285ff':theme==='neon'?'#00ffff':'#ff69df';
+    c.lineWidth=Math.max(1,k*.025);
+    c.beginPath();
+    c.ellipse(a,b,R*1.75,R*.62,t,0,7);c.stroke();
+    c.beginPath();
+    c.ellipse(a,b,R*.62,R*1.75,-t,0,7);c.stroke();
+  }
+
+  if(theme==='gold'){
+    c.strokeStyle='#ffe36b';c.lineWidth=Math.max(1,k*.035);c.globalAlpha=.8;
+    c.beginPath();
+    for(let i=0;i<10;i++){
+      const an=t+i*Math.PI/5,rr=i%2?R*.65:R*1.55;
+      const px=a+Math.cos(an)*rr,py=b+Math.sin(an)*rr;
+      if(i===0)c.moveTo(px,py);else c.lineTo(px,py);
+    }
+    c.closePath();c.stroke();
+  }
+
+  if(theme==='rainbow'){
+    const cols=['#ff4b4b','#ffe74b','#50ff70','#48aaff','#a64bff'];
+    c.lineWidth=Math.max(1,k*.035);
+    for(let i=0;i<5;i++){
+      c.globalAlpha=.7;
+      c.strokeStyle=cols[i];
+      c.beginPath();
+      c.arc(a,b,R*(1.25+i*.12),Math.PI+.35,Math.PI*2-.35);
+      c.stroke();
+    }
+  }
+
+  c.restore();
+};
+
 function burst(n,col,sp,up){
   const[a,b,k]=P(x,Math.max(y,0)+.1,3);
   for(let i=0;i<n&&parts.length<250;i++){const an=Math.random()*6.28,v=Math.random()*sp*k*.02;
@@ -430,10 +525,47 @@ function draw(){
   if(st!=='menu'){
     if(y>=0&&rows[z+3|0][Math.round(x+3)]){const[a,b,k]=P(x,0,3);c.fillStyle='rgba(0,0,0,.45)';c.beginPath();c.ellipse(a,b,k/4,k/9,0,0,7);c.fill()}
     const[a,b,k]=P(x,y+.35,3),R=k*.33,[c1,c2]=skc();
+
+    // Effets et traînée propres au skin
+    drawBallFX(a,b,k,R,c1,c2);
+
     c.globalAlpha=.25;c.fillStyle=c1;c.beginPath();c.arc(a,b,R*1.5,0,7);c.fill();c.globalAlpha=1;
+
     const bg=c.createRadialGradient(a-R*.35,b-R*.4,R*.08,a,b,R);
     bg.addColorStop(0,'#fff');bg.addColorStop(.3,c1);bg.addColorStop(1,c2);
     c.fillStyle=bg;c.beginPath();c.arc(a,b,R,0,7);c.fill();
+
+    // Reflet animé
+    const shine=(Math.sin(T*.09)+1)/2;
+    c.globalAlpha=.35+.35*shine;
+    c.fillStyle='#fff';
+    c.beginPath();
+    c.arc(a-R*.28,b-R*.32,R*.16,0,7);
+    c.fill();
+    c.globalAlpha=1;
+
+    // Détails visibles de la balle
+    const theme=SK[S.skin][4];
+    c.save();
+    c.globalAlpha=.8;
+    c.lineWidth=Math.max(1,k*.025);
+    if(theme==='neon'){
+      c.strokeStyle='#ff35ff';
+      c.beginPath();c.arc(a,b,R*.72,T*.03,T*.03+Math.PI*1.35);c.stroke();
+    }else if(theme==='galaxy'){
+      c.fillStyle='#fff';
+      for(let i=0;i<4;i++){
+        const an=T*.03+i*1.7;
+        c.beginPath();c.arc(a+Math.cos(an)*R*.55,b+Math.sin(an)*R*.55,R*.055,0,7);c.fill();
+      }
+    }else if(theme==='ice'){
+      c.strokeStyle='#fff';
+      c.beginPath();c.moveTo(a-R*.45,b);c.lineTo(a,b-R*.45);c.lineTo(a+R*.45,b);c.stroke();
+    }else if(theme==='void'){
+      c.strokeStyle='#e0a8ff';
+      c.beginPath();c.arc(a,b,R*.68,-T*.04,T*.04+Math.PI*1.5);c.stroke();
+    }
+    c.restore();
   }
   // particules
   for(const p of parts){c.globalAlpha=p.l/p.m;c.fillStyle=p.c;c.beginPath();c.arc(p.x,p.y,p.s*(p.l/p.m),0,7);c.fill()}
@@ -473,7 +605,15 @@ function buildLevels(){
 function buildShop(){
   $('sc2').textContent=S.coins;
   $('sg').innerHTML=SK.map((s,i)=>{
-    const own=S.owned.includes(i),bg=s[2]?`radial-gradient(circle at 35% 30%,#fff,${s[2]} 35%,${s[3]})`:'conic-gradient(#ff4fa3,#ffd23f,#5cf29a,#3fe0ff,#8b5cff,#ff4fa3)';
+    const own=S.owned.includes(i);
+    const theme=s[4];
+    const bg=theme==='rainbow'
+      ? 'conic-gradient(#ff4b4b,#ffe74b,#50ff70,#48aaff,#a64bff,#ff4b4b)'
+      : theme==='neon'
+      ? `radial-gradient(circle at 35% 30%,#fff,${s[2]} 25%,#ff35ff 55%,${s[3]})`
+      : theme==='galaxy'
+      ? `radial-gradient(circle at 35% 30%,#fff,${s[2]} 12%,#713cff 42%,${s[3]})`
+      : `radial-gradient(circle at 35% 30%,#fff,${s[2]} 35%,${s[3]})`;
     return `<button class="card ${S.skin==i?'sel':''} ${own?'':'lock'}" data-s="${i}"><div class="orb" style="background:${bg}"></div>${s[0]}<br>${own?(S.skin==i?'Équipée':'Choisir'):`<svg class="i"><use href="#i-coin"/></svg> ${s[1]}`}</button>`;
   }).join('');
 }
