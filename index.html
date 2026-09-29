@@ -120,6 +120,9 @@ const SK=[['Bulle',0,'#7fe9ff','#1466ff'],['Bonbon',30,'#ff9ad0','#d1146f'],['Me
 let ac,mg,sg,mu,mstep=0,nt=0;
 let music=new Audio('music.mp3');
 music.loop=true;
+let gameOverSound=new Audio('gameover.mp3');
+gameOverSound.preload='auto';
+gameOverSound.volume=.75;
 music.preload='auto';
 music.volume=.55;
 
@@ -454,7 +457,13 @@ function endRun(w){
   if(w)S.unl=Math.max(S.unl,Math.min(lv+2,LV.length));
   save();$('hud').classList.remove('on');
   if(w){$('wc').textContent=run+bonus;$('nx').style.display=lv<LV.length-1?'flex':'none';sfx('w');burst(60,'#ffd23f',10,1);show('win')}
-  else{$('fs').textContent=d;$('fc').textContent=run;$('fb').textContent=S.best;show('over')}
+  else{
+    $('fs').textContent=d;
+    $('fc').textContent=run;
+    $('fb').textContent=S.best;
+    if(!S.mute){gameOverSound.currentTime=0;gameOverSound.play().catch(()=>{});}
+    show('over');
+  }
 }
 function menu(){st='menu';lv=Math.min(lv,S.unl-1);resetWorld();$('hud').classList.remove('on');$('mb').textContent=S.best;$('mc').textContent=S.coins;show('menu')}
 function buildLevels(){
@@ -524,4 +533,4 @@ addEventListener('keyup',e=>{const k=e.key;if(k=='a'||k=='ArrowLeft')keys.l=0;if
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&st==='play')togglePause()});
 </script>
 </body>
-</html>
+</html> ajoute un sons (gameover.mp3) pour le game over 
