@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+
+  <defs>
+    <linearGradient id="ball" x1="20" y1="15" x2="80" y2="90" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#62D4FF"/>
+      <stop offset="1" stop-color="#1685E8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Ballon -->
+  <circle cx="50" cy="50" r="43" fill="url(#ball)"/>
+
+  <!-- Motif central -->
+  <path
+    d="M50 27
+       L62 36
+       L58 51
+       L50 59
+       L42 51
+       L38 36Z"
+    fill="white"/>
+
+  <!-- Motif gauche -->
+  <path
+    d="M38 36L25 33L17 46L28 59L42 51Z"
+    fill="white"
+    opacity=".95"/>
+
+  <!-- Motif droit -->
+  <path
+    d="M62 36L75 33L83 46L72 59L58 51Z"
+    fill="white"
+    opacity=".95"/>
+
+  <!-- Partie basse -->
+  <path
+    d="M28 59L34 74L50 85L66 74L72 59L58 51L50 59L42 51Z"
+    fill="#0F72C9"/>
+
+  <!-- Contour -->
+  <circle
+    cx="50"
+    cy="50"
+    r="43"
+    fill="none"
+    stroke="#075FA8"
+    stroke-width="3.5"/>
+
+</svg>
