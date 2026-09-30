@@ -1,3 +1,65 @@
+
+
+
+Code.txt
+Document
+
+3bf8f78a-11c4-4c61-a00f-84626c2dcd3a.png
+8b4f5445-b227-4368-8aea-5ff0014211c2.png
+4fda6b42-f1ba-4aa9-89f3-b696a162bc91.png
+Utilise ce screen et ces plaques de style pour refaire le menu 
+
+Image générée : Menu principal de jeu spatial coloré
+
+
+Modifier
+
+
+parfait mainteneant fais exactement pareil en html
+
+It seems like I can’t do more advanced data analysis right now. Please try again later. 
+
+
+
+Code(1).txt
+Document
+
+Oui. J’ai repris ton SkyDreams complet et refait le menu dans le style des screens : gros panneaux glossy, boutons colorés, cartes de modes, compteurs, record, boutique/niveaux, etc. 
+
+
+J’ai aussi ajouté :
+
+🎵 son différent pour le menu → menu.mp3
+
+🎮 écran de chargement quand tu appuies sur JOUER
+
+✨ animation de chargement
+
+💰 compteur de pièces
+
+⭐ record
+
+🎨 menu responsive PC + mobile
+
+🔊 conservation de music.mp3 pour le jeu
+
+💀 conservation de gameover.mp3
+
+📱 conservation des contrôles mobiles et du jeu existant 
+
+
+Fichier HTML complet
+Télécharger index_skydreams_arcade.html
+
+Place simplement ces fichiers dans le même dossier :
+
+index_skydreams_arcade.html
+music.mp3
+menu.mp3
+gameover.mp3
+logo.svg
+Puis renomme index_skydreams_arcade.html en index.html si tu veux l'utiliser directement comme page principale.
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -652,14 +714,81 @@ p{margin:0;opacity:.85}
 .big{font-size:56px;font-weight:700;color:var(--yel);line-height:1}
 @media(prefers-reduced-motion:reduce){#bn.go{animation-duration:.01s}}
 
-/* ECRAN DE CHARGEMENT */
-#loading{gap:16px;background:rgba(3,10,28,.72);backdrop-filter:blur(18px);z-index:30}
-.loadingOrb{width:86px;height:86px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#ff4fa3,#ffd23f,#3fe0ff,#8b5cff,#ff4fa3);animation:loadSpin 1.15s linear infinite;box-shadow:0 0 35px rgba(63,224,255,.3)}
-.loadingCore{width:66px;height:66px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff,#72e8ff 25%,#477cff 65%,#7b35ff);box-shadow:inset -7px -9px 15px rgba(0,0,0,.25)}
-.loadingBar{width:min(330px,76vw);height:12px;border-radius:99px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);overflow:hidden;box-shadow:inset 0 2px 5px rgba(0,0,0,.25)}
-.loadingBar i{display:block;width:0;height:100%;border-radius:99px;background:linear-gradient(90deg,#ff4fa3,#ffd23f,#3fe0ff);transition:width .12s linear}
-#loadingPercent{font-weight:700;opacity:.85}
-@keyframes loadSpin{to{transform:rotate(360deg)}}
+/* =========================================================
+   SKYDREAMS — NEW ARCADE MENU / LOADING UI
+   Inspiré du langage visuel des jeux mobiles arcade glossy :
+   gros panneaux arrondis, couleurs vives, volumes, néons.
+   ========================================================= */
+#menu{
+  gap:0!important;
+  padding:clamp(14px,2vw,28px)!important;
+  justify-content:stretch!important;
+  align-items:stretch!important;
+  background:
+    radial-gradient(circle at 50% 15%,rgba(255,255,255,.16),transparent 28%),
+    linear-gradient(145deg,#26106b 0%,#35117f 42%,#160b43 100%)!important;
+  overflow:hidden;
+}
+#menu::before,#menu::after{
+  content:"";position:absolute;pointer-events:none;border-radius:50%;filter:blur(3px);
+}
+#menu::before{width:34vw;height:34vw;right:-10vw;top:-16vw;background:rgba(255,56,182,.18);box-shadow:0 0 90px rgba(255,56,182,.25)}
+#menu::after{width:28vw;height:28vw;left:-12vw;bottom:-12vw;background:rgba(45,224,255,.13);box-shadow:0 0 90px rgba(45,224,255,.22)}
+.menu-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;position:relative;z-index:2;width:100%;}
+.menu-brand{display:flex;align-items:center;gap:10px;font-size:clamp(22px,4vw,34px);font-weight:700;text-shadow:0 4px 0 rgba(0,0,0,.18)}
+.menu-brand .mini-logo{width:52px;height:52px;border-radius:17px;background:linear-gradient(145deg,#55e8ff,#6f5cff 55%,#ff4fa3);box-shadow:inset 0 3px 8px rgba(255,255,255,.55),0 8px 22px rgba(0,0,0,.28);display:grid;place-items:center;font-size:27px;transform:rotate(-5deg)}
+.menu-wallet{display:flex;gap:9px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.menu-currency{min-width:96px;height:42px;padding:0 13px;border-radius:16px;background:linear-gradient(180deg,rgba(74,34,145,.95),rgba(35,15,90,.95));border:2px solid rgba(255,255,255,.18);box-shadow:0 5px 0 rgba(0,0,0,.22),inset 0 2px 8px rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;gap:7px;font-weight:700}
+.menu-currency b{color:#ffd84a}
+.menu-currency.star b{color:#59e9ff}
+.menu-currency::after{content:"+";display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#62e46e;color:white;font-size:14px;box-shadow:0 2px 0 rgba(0,0,0,.22)}
+.menu-layout{position:relative;z-index:2;display:grid;grid-template-columns:170px minmax(280px,1fr) 180px;gap:clamp(12px,2vw,24px);align-items:center;justify-content:center;flex:1;width:100%;min-height:0}
+.arcade-panel{border-radius:24px;background:linear-gradient(145deg,rgba(121,49,194,.92),rgba(47,17,106,.94));border:3px solid rgba(255,255,255,.16);box-shadow:0 10px 0 rgba(17,5,48,.42),0 18px 38px rgba(0,0,0,.28),inset 0 2px 8px rgba(255,255,255,.15);}
+.menu-side{padding:12px;display:flex;flex-direction:column;gap:9px;align-self:stretch;justify-content:center;}
+.side-title{font-size:12px;letter-spacing:.1em;text-transform:uppercase;opacity:.7;text-align:center;margin-bottom:2px}
+.side-btn{height:49px;border:0;border-radius:15px;color:#fff;font:700 15px Fredoka,system-ui;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.25),inset 0 2px 5px rgba(255,255,255,.28);transition:.12s transform,.12s filter;}
+.side-btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.side-btn.pink{background:linear-gradient(#ff62c2,#d62c92)}
+.side-btn.blue{background:linear-gradient(#49e7ff,#168bd9)}
+.side-btn.yellow{background:linear-gradient(#ffd95b,#f49c21)}
+.side-btn.green{background:linear-gradient(#8cfb74,#39b95e)}
+.side-btn.red{background:linear-gradient(#ff7a73,#df3d65)}
+.menu-center{display:flex;flex-direction:column;align-items:center;gap:12px;min-width:0}
+.game-logo{width:min(170px,35vw);height:min(120px,22vw);border-radius:34% 34% 40% 40%;background:radial-gradient(circle at 35% 25%,#fff 0 7%,#62eaff 12%,#6371ff 42%,#ad35ff 72%,#ff4fa3);border:5px solid rgba(255,255,255,.34);box-shadow:inset 0 7px 18px rgba(255,255,255,.4),0 10px 0 rgba(18,4,62,.3),0 20px 50px rgba(0,0,0,.35);display:grid;place-items:center;transform:rotate(-3deg);animation:logoFloat 3.2s ease-in-out infinite}
+.game-logo span{font-size:clamp(23px,4vw,40px);font-weight:700;text-shadow:0 4px 0 #6532b9,0 7px 15px rgba(0,0,0,.28);transform:rotate(3deg)}
+@keyframes logoFloat{50%{transform:rotate(3deg) translateY(-5px)}}
+.game-title{font-size:clamp(32px,6vw,64px);line-height:.9;margin:0;font-weight:700;letter-spacing:-.04em;background:linear-gradient(180deg,#fff,#ffec68 48%,#ff65bd);-webkit-background-clip:text;color:transparent;filter:drop-shadow(0 6px 0 rgba(66,18,119,.65));}
+.game-sub{font-size:clamp(11px,1.7vw,16px);opacity:.78;margin:-4px 0 2px}
+.mode-cards{display:grid;grid-template-columns:repeat(3,minmax(90px,1fr));gap:10px;width:min(570px,100%)}
+.mode-card{position:relative;min-height:118px;padding:10px;border-radius:22px;border:3px solid rgba(255,255,255,.24);color:white;text-align:left;cursor:pointer;overflow:hidden;box-shadow:0 7px 0 rgba(0,0,0,.22),inset 0 2px 10px rgba(255,255,255,.24);transition:.14s transform,.14s filter}
+.mode-card:hover{transform:translateY(-4px) rotate(-1deg);filter:brightness(1.08)}
+.mode-card:active{transform:translateY(4px) scale(.98)}
+.mode-card:nth-child(1){background:linear-gradient(145deg,#48dfff,#4565ff 60%,#6c27d9)}
+.mode-card:nth-child(2){background:linear-gradient(145deg,#ff71ca,#a83fe8 60%,#5e24b6)}
+.mode-card:nth-child(3){background:linear-gradient(145deg,#ffd85a,#ff9c30 52%,#ef4b74)}
+.mode-card .orb-icon{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;font-size:29px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.5);box-shadow:inset 0 4px 8px rgba(255,255,255,.35),0 5px 12px rgba(0,0,0,.18);margin-bottom:8px}
+.mode-card strong{display:block;font-size:15px}.mode-card small{opacity:.78;font-size:10px}.mode-card .lockmark{position:absolute;right:9px;top:8px;font-size:18px}
+.main-play{width:min(370px,92%);min-height:67px!important;border-radius:22px!important;background:linear-gradient(180deg,#ff68be,#f02c91 58%,#c51d75)!important;border:3px solid rgba(255,255,255,.3)!important;box-shadow:0 8px 0 #7f1458,0 17px 30px rgba(0,0,0,.28),inset 0 3px 9px rgba(255,255,255,.3)!important;font-size:25px!important;letter-spacing:.02em;}
+.menu-progress{width:min(370px,92%);height:16px;padding:3px;border-radius:99px;background:rgba(8,3,35,.5);border:2px solid rgba(255,255,255,.18);box-shadow:inset 0 3px 6px rgba(0,0,0,.3)}
+.menu-progress i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,#53eaff,#77ff92,#ffd84b);box-shadow:0 0 12px rgba(84,241,255,.5);transition:width .2s}
+.profile-panel{padding:13px;display:flex;align-items:center;gap:10px;margin-top:3px;width:min(370px,92%)}
+.profile-avatar{width:43px;height:43px;border-radius:13px;background:linear-gradient(145deg,#8ffcff,#795bff 55%,#ff4fa3);display:grid;place-items:center;font-size:23px;box-shadow:inset 0 3px 8px rgba(255,255,255,.45)}
+.profile-panel small{display:block;opacity:.65;font-size:10px}.profile-panel b{font-size:14px}
+.menu-right .scorebox{padding:14px;text-align:center;margin-bottom:9px}.scorebox .score-label{font-size:11px;opacity:.65;text-transform:uppercase}.scorebox .score-number{font-size:34px;color:#ffd74c;text-shadow:0 3px 0 #a65b13}.score-stars{color:#ffd84a;font-size:19px;letter-spacing:1px}
+.quick-icons{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.quick{height:48px;border:0;border-radius:14px;background:linear-gradient(145deg,#3adfff,#4e66ff);color:#fff;font-size:21px;box-shadow:0 5px 0 rgba(0,0,0,.25),inset 0 2px 6px rgba(255,255,255,.3);cursor:pointer}
+#loadingScreen{z-index:50!important;display:none!important;background:radial-gradient(circle at 50% 35%,rgba(112,69,255,.45),transparent 40%),linear-gradient(145deg,#16053c,#3c1680 55%,#10052e)!important;}
+#loadingScreen.on{display:flex!important}
+.loading-logo{width:105px;height:105px;border-radius:32px;background:radial-gradient(circle at 35% 25%,#fff,#6eeeff 18%,#785cff 55%,#ff4fa3);border:4px solid rgba(255,255,255,.4);display:grid;place-items:center;font-size:44px;box-shadow:inset 0 5px 14px rgba(255,255,255,.35),0 12px 35px rgba(0,0,0,.35);animation:loadBounce 1s infinite}
+@keyframes loadBounce{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-10px) scale(1.04)}}
+.loading-title{font-size:clamp(25px,6vw,42px);font-weight:700}.loading-tip{opacity:.7;font-size:14px}.loading-track{width:min(420px,82vw);height:20px;padding:3px;border-radius:99px;background:rgba(0,0,0,.35);border:2px solid rgba(255,255,255,.2);box-shadow:inset 0 3px 7px rgba(0,0,0,.3)}
+.loading-track i{display:block;width:12%;height:100%;border-radius:99px;background:linear-gradient(90deg,#ff54b7,#ffd64d,#66f5ff);animation:loadingBar 1.35s cubic-bezier(.2,.8,.2,1) forwards;box-shadow:0 0 14px rgba(255,215,80,.45)}
+@keyframes loadingBar{to{width:100%}}
+.loading-dots{font-weight:700;letter-spacing:5px;opacity:.8}.loading-dots::after{content:'...';animation:dots 1s steps(4,end) infinite}.loading-dots{font-size:0}.loading-dots::after{font-size:18px}
+@keyframes dots{0%{content:''}25%{content:'.'}50%{content:'..'}75%,100%{content:'...'}}
+@media(max-width:900px){.menu-layout{grid-template-columns:125px minmax(240px,1fr) 125px;gap:10px}.menu-side{padding:8px}.side-btn{height:43px;font-size:13px}.mode-card{min-height:100px}.menu-currency{min-width:82px;height:38px;font-size:13px}}
+@media(max-width:700px){#menu{padding:12px!important}.menu-topbar{align-items:flex-start}.menu-brand{font-size:20px}.menu-brand .mini-logo{width:42px;height:42px}.menu-wallet{gap:5px}.menu-currency{min-width:auto;padding:0 9px;height:35px;font-size:12px}.menu-layout{grid-template-columns:1fr;overflow:auto;padding:8px 0 12px}.menu-side{display:grid;grid-template-columns:repeat(2,1fr);align-self:auto}.menu-side .side-title{grid-column:1/-1}.menu-right{display:none}.menu-center{gap:9px}.game-logo{width:82px;height:58px;border-radius:20px}.game-logo span{font-size:21px}.game-title{font-size:38px}.game-sub{font-size:11px}.mode-cards{grid-template-columns:repeat(3,1fr);gap:6px}.mode-card{min-height:82px;padding:7px;border-radius:16px}.mode-card .orb-icon{width:34px;height:34px;font-size:19px;margin-bottom:4px}.mode-card strong{font-size:11px}.mode-card small{font-size:8px}.main-play{min-height:58px!important;font-size:21px!important}.profile-panel{padding:9px}.profile-avatar{width:36px;height:36px}.menu-progress{height:13px}}
+@media(max-width:390px){.menu-layout{gap:7px}.game-title{font-size:33px}.mode-card{min-height:75px}.mode-card .orb-icon{display:none}.menu-side{gap:6px}.side-btn{height:39px;font-size:12px}.profile-panel{display:none}}
+
 </style>
 </head>
 <body>
@@ -718,22 +847,56 @@ p{margin:0;opacity:.85}
   <button id="pb" data-a="pause" aria-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
 </div>
 
-<section id="loading" class="scr">
-  <div class="loadingOrb"><div class="loadingCore"></div></div>
-  <h2 id="loadingTitle">Préparation...</h2>
-  <p id="loadingText">Chargement du ciel</p>
-  <div class="loadingBar"><i id="loadingFill"></i></div>
-  <span id="loadingPercent">0%</span>
+<section id="menu" class="scr on">
+  <div class="menu-topbar">
+    <div class="menu-brand"><div class="mini-logo">☁</div><span>SkyDreams</span></div>
+    <div class="menu-wallet">
+      <div class="menu-currency"><svg class="i"><use href="#i-coin"/></svg><b id="mc">0</b></div>
+      <div class="menu-currency star"><svg class="i"><use href="#i-star"/></svg><b id="mb">0</b></div>
+    </div>
+  </div>
+  <div class="menu-layout">
+    <aside class="arcade-panel menu-side">
+      <div class="side-title">Menu</div>
+      <button class="side-btn pink" data-a="play">▶ JOUER</button>
+      <button class="side-btn blue" data-a="levels">▦ NIVEAUX</button>
+      <button class="side-btn yellow" data-a="shop">★ BOUTIQUE</button>
+      <button class="side-btn green" data-a="snd">♫ SON</button>
+      <button class="side-btn red" data-a="options">⚙ OPTIONS</button>
+    </aside>
+
+    <main class="menu-center">
+      <div class="game-logo"><span>☁✦</span></div>
+      <h1 class="game-title">SkyDreams</h1>
+      <p class="game-sub">ENDLESS SKY • ROULE, SAUTE, SURVIS</p>
+      <div class="mode-cards">
+        <button class="mode-card" data-a="play"><div class="orb-icon">☁</div><strong>SKY RUN</strong><small>Mode classique</small></button>
+        <button class="mode-card" data-a="levels"><div class="orb-icon">✦</div><strong>LEVELS</strong><small><span id="menuUnlocked">1</span> débloqué(s)</small></button>
+        <button class="mode-card" data-a="shop"><div class="orb-icon">●</div><strong>SKINS</strong><small>Personnalise ta balle</small></button>
+      </div>
+      <button class="btn main-play" data-a="play"><svg class="i"><use href="#i-play"/></svg> JOUER</button>
+      <div class="menu-progress"><i id="menuProgress"></i></div>
+      <div class="arcade-panel profile-panel"><div class="profile-avatar">☄</div><div><small>MEILLEUR SCORE</small><b><span id="menuBest">0</span> m dans le ciel</b></div></div>
+    </main>
+
+    <aside class="menu-right">
+      <div class="arcade-panel scorebox"><div class="score-label">Ton record</div><div class="score-number" id="menuScore">0</div><div class="score-stars">★★★★★</div></div>
+      <div class="quick-icons">
+        <button class="quick" data-a="levels">▦</button>
+        <button class="quick" data-a="shop">★</button>
+        <button class="quick" data-a="snd">♫</button>
+        <button class="quick" data-a="play">▶</button>
+      </div>
+    </aside>
+  </div>
 </section>
 
-<section id="menu" class="scr on">
-  <svg viewBox="0 0 100 60" width="120"><defs><linearGradient id="lg" x1="0" x2="1"><stop offset="0" stop-color="#ff4fa3"/><stop offset="1" stop-color="#ffd23f"/></linearGradient></defs><circle cx="50" cy="26" r="22" fill="url(#lg)"/><circle cx="42" cy="18" r="6" fill="#fff" opacity=".55"/><g fill="#fff" opacity=".92"><ellipse cx="30" cy="48" rx="20" ry="9"/><ellipse cx="55" cy="50" rx="28" ry="8"/><ellipse cx="78" cy="47" rx="16" ry="8"/></g></svg>
-  <h1>SkyDreams</h1>
-  <p>Roule dans le ciel, évite le vide.</p>
-  <div class="row"><span class="chip"><svg class="i" style="color:var(--cy)"><use href="#i-star"/></svg>Record <span id="mb">0</span></span><span class="chip"><svg class="i"><use href="#i-coin"/></svg><span id="mc">0</span></span></div>
-  <button class="btn b1" data-a="play"><svg class="i"><use href="#i-play"/></svg>Jouer</button>
-  <button class="btn b2" data-a="levels"><svg class="i"><use href="#i-grid"/></svg>Niveaux</button>
-  <button class="btn b3" data-a="shop"><svg class="i"><use href="#i-ball"/></svg>Boutique</button>
+<section id="loadingScreen" class="scr">
+  <div class="loading-logo">☁✦</div>
+  <div class="loading-title">Préparation du niveau</div>
+  <div class="loading-tip">Les nuages sont presque prêts</div>
+  <div class="loading-track"><i></i></div>
+  <div class="loading-dots"></div>
 </section>
 
 <section id="levels" class="scr"><h2>Niveaux</h2><div class="grid" id="lg2"></div><button class="btn b2" data-a="menu"><svg class="i"><use href="#i-home"/></svg>Menu</button></section>
@@ -799,11 +962,11 @@ const SK=[
 let ac,mg,sg,mu,mstep=0,nt=0;
 let music=new Audio('music.mp3');
 music.loop=true;
-let menuMusic=new Audio('menu.mp3');
-menuMusic.loop=true;
-menuMusic.preload='auto';
-menuMusic.volume=.45;
 let gameOverSound=new Audio('gameover.mp3');
+let menuSound=new Audio('menu.mp3');
+menuSound.loop=true;
+menuSound.preload='auto';
+menuSound.volume=.42;
 gameOverSound.preload='auto';
 gameOverSound.volume=.75;
 music.preload='auto';
@@ -817,14 +980,24 @@ function setVol(){
     sg.gain.value=S.mute?0:.62;
   }
   music.volume=S.mute?0:.55;
-  menuMusic.volume=S.mute?0:.45;
+  menuSound.volume=S.mute?0:.42;
+}
+
+function playMenuSound(){
+  if(S.mute)return;
+  music.pause();
+  menuSound.play().catch(()=>{});
+}
+function stopMenuSound(){
+  menuSound.pause();
+  menuSound.currentTime=0;
 }
 
 function initA(){
   if(ac){
     if(ac.state==='suspended')ac.resume();
     setVol();
-    updateMusic();
+    if(st==='menu')playMenuSound();else music.play().catch(()=>{});
     return;
   }
 
@@ -850,23 +1023,8 @@ function initA(){
 
     setVol();
     setVol();
-    updateMusic();
+    if(st==='menu')playMenuSound();else music.play().catch(()=>{});
   }catch(e){}
-}
-
-function updateMusic(){
-  if(S.mute){
-    music.pause();
-    menuMusic.pause();
-    return;
-  }
-  if(st==='menu'||st==='levels'||st==='shop'||st==='pause'||st==='over'||st==='win'){
-    music.pause();
-    menuMusic.play().catch(()=>{});
-  }else if(st==='play'){
-    menuMusic.pause();
-    music.play().catch(()=>{});
-  }
 }
 
 function tone(f,t,d,ty,v,dst,f2){
@@ -1294,44 +1452,27 @@ function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggl
 function banner(t){const b=$('bn');b.textContent=t;b.classList.remove('go');void b.offsetWidth;b.classList.add('go')}
 function resetWorld(){rows=[];gap=0;sx=sw=3;x=y=z=vy=tx=0;falling=0;parts=[]}
 function start(l){
-  lv=l;resetWorld();run=0;jb=0;
-  show('loading');$('hud').classList.remove('on');
-  initA();updateMusic();
-  const fill=$('loadingFill'),pct=$('loadingPercent'),title=$('loadingTitle'),text=$('loadingText');
-  let progress=0;
-  const steps=['Préparation du ciel','Génération de la piste','Chargement des obstacles','Placement des pièces','Prêt !'];
-  fill.style.width='0%';pct.textContent='0%';title.textContent='Préparation...';text.textContent=steps[0];
-  const timer=setInterval(()=>{
-    progress+=Math.floor(Math.random()*18)+8;
-    if(progress>=100)progress=100;
-    fill.style.width=progress+'%';pct.textContent=progress+'%';
-    text.textContent=steps[Math.min(steps.length-1,Math.floor(progress/25))];
-    if(progress>=100){
-      clearInterval(timer);
-      setTimeout(()=>{
-        st='play';show('');$('hud').classList.add('on');
-        $('bf').style.width='0';$('sc').textContent='0';$('cn').textContent=S.coins;
-        updateMusic();banner('Niveau '+(l+1)+' · '+LV[l][0]);
-        updateMobileUI();
-      },180);
-    }
-  },55);
+  stopMenuSound();
+  lv=l;resetWorld();run=0;jb=0;st='play';show('');$('hud').classList.add('on');
+  $('bf').style.width='0';$('sc').textContent='0';$('cn').textContent=S.coins;
+  music.play().catch(()=>{});
+  banner('Niveau '+(l+1)+' · '+LV[l][0]);
 }
 function endRun(w){
   st=w?'win':'over';const bonus=w?lv*15+30:0;
   S.coins+=run+bonus;const d=z|0;if(d>S.best)S.best=d;
   if(w)S.unl=Math.max(S.unl,Math.min(lv+2,LV.length));
   save();$('hud').classList.remove('on');
-  if(w){$('wc').textContent=run+bonus;$('nx').style.display=lv<LV.length-1?'flex':'none';sfx('w');burst(60,'#ffd23f',10,1);show('win');updateMusic()} 
+  if(w){$('wc').textContent=run+bonus;$('nx').style.display=lv<LV.length-1?'flex':'none';sfx('w');burst(60,'#ffd23f',10,1);show('win')}
   else{
     $('fs').textContent=d;
     $('fc').textContent=run;
     $('fb').textContent=S.best;
     if(!S.mute){gameOverSound.currentTime=0;gameOverSound.play().catch(()=>{});}
-    show('over');updateMusic();
+    show('over');
   }
 }
-function menu(){st='menu';lv=Math.min(lv,S.unl-1);resetWorld();$('hud').classList.remove('on');$('mb').textContent=S.best;$('mc').textContent=S.coins;show('menu');updateMusic()}
+function menu(){st='menu';stopMenuSound();playMenuSound();lv=Math.min(lv,S.unl-1);resetWorld();$('hud').classList.remove('on');$('mb').textContent=S.best;$('mc').textContent=S.coins;$('menuBest').textContent=S.best;$('menuScore').textContent=S.best;$('menuUnlocked').textContent=S.unl;$('menuProgress').style.width=Math.min(100,S.unl/LV.length*100)+'%';show('menu')}
 function buildLevels(){
   $('lg2').innerHTML=LV.map((l,i)=>`<button class="card ${i<S.unl?'':'lock'}" data-l="${i}"><b>${i<S.unl?i+1:'<svg class="i"><use href="#i-lock"/></svg>'}</b>${l[0]}</button>`).join('');
 }
@@ -1362,7 +1503,8 @@ function act(a){
   else if(a=='retry')start(lv);
   else if(a=='next')start(lv+1);
   else if(a=='pause')togglePause();
-  else if(a=='snd'){S.mute^=1;setVol();save();$('sndU').setAttribute('href',S.mute?'#i-mute':'#i-snd');updateMusic()}
+  else if(a=='snd'){S.mute^=1;setVol();save();$('sndU').setAttribute('href',S.mute?'#i-mute':'#i-snd');if(S.mute)stopMenuSound();else if(st==='menu')playMenuSound()}
+  else if(a=='options'){banner('Options bientôt disponibles');}
 }
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-a],[data-l],[data-s]');if(!b)return;sfx('u');
@@ -1788,10 +1930,41 @@ addEventListener('orientationchange',()=>{
    ========================================================= */
 
 setTimeout(()=>{
-
   updateMobileUI();
-
+  if(st==='menu'&&!S.mute)playMenuSound();
 },100);
+
+/* =========================================================
+   LOADING SCREEN — PLAY
+   ========================================================= */
+const __skydreamsAct=act;
+let __loadingTimer=null;
+act=function(a){
+  if(a==='play' && st==='menu'){
+    if(__loadingTimer)clearTimeout(__loadingTimer);
+    initA();
+    stopMenuSound();
+    show('loadingScreen');
+    __loadingTimer=setTimeout(()=>{
+      __loadingTimer=null;
+      __skydreamsAct('play');
+    },1350);
+    return;
+  }
+  __skydreamsAct(a);
+};
+
+/* Premier geste utilisateur : autorise le son du menu sur mobile. */
+document.addEventListener('pointerdown',()=>{
+  initA();
+  if(st==='menu' && !S.mute && menuSound.paused)playMenuSound();
+},{once:false,passive:true});
+
 </script>
 </body>
 </html> 
+
+index_skydreams_arcade.html
+HTML
+
+
