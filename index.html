@@ -1349,6 +1349,393 @@ addEventListener('keydown',e=>{
 });
 addEventListener('keyup',e=>{const k=e.key;if(k=='a'||k=='ArrowLeft')keys.l=0;if(k=='d'||k=='ArrowRight')keys.r=0});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&st==='play')togglePause()});
+/* =========================================================
+   SKYDREAMS — MOBILE CONTROL SYSTEM
+   ========================================================= */
+
+const mobileUI = $('mobileControls');
+const movePad = $('movePad');
+const padKnob = $('padKnob');
+const jumpBtn = $('jumpBtn');
+const mobilePause = $('mobilePause');
+const mobileHint = $('mobileHint');
+
+const isTouchDevice =
+  ('ontouchstart' in window) ||
+  navigator.maxTouchPoints > 0;
+
+let padPointer = null;
+let padCenterX = 0;
+let padCenterY = 0;
+
+const PAD_RADIUS = 43;
+
+function updateMobileUI(){
+
+  if(!isTouchDevice){
+    mobileUI.classList.remove('active');
+    return;
+  }
+
+  if(st === 'play'){
+    mobileUI.classList.add('active');
+  }else{
+    mobileUI.classList.remove('active');
+  }
+}
+
+function showMobileHint(){
+
+  if(localStorage.getItem('skyd_mobile_hint')) return;
+
+  mobileHint.classList.add('show');
+
+  setTimeout(()=>{
+    mobileHint.classList.remove('show');
+    localStorage.setItem('skyd_mobile_hint','1');
+  },3200);
+}
+
+function vibrate(ms=10){
+  if(navigator.vibrate){
+    try{
+      navigator.vibrate(ms);
+    }catch(e){}
+  }
+}
+
+function resetPad(){
+
+  padKnob.style.transform =
+    'translate(-50%,-50%)';
+
+  keys.l=0;
+  keys.r=0;
+
+  tx=x;
+}
+
+function calculatePadCenter(){
+
+  const r=movePad.getBoundingClientRect();
+
+  padCenterX=r.left+r.width/2;
+  padCenterY=r.top+r.height/2;
+}
+
+function updatePad(clientX,clientY){
+
+  let dx=clientX-padCenterX;
+  let dy=clientY-padCenterY;
+
+  const dist=Math.hypot(dx,dy);
+
+  if(dist>PAD_RADIUS){
+
+    const ratio=PAD_RADIUS/dist;
+
+    dx*=ratio;
+    dy*=ratio;
+
+  }
+
+  const nx=dx/PAD_RADIUS;
+  const ny=dy/PAD_RADIUS;
+
+  padKnob.style.transform =
+    `translate(calc(-50% + ${dx}px),calc(-50% + ${dy}px))`;
+
+  /*
+    Gauche / droite
+  */
+  if(Math.abs(nx)<.12){
+
+    keys.l=0;
+    keys.r=0;
+
+  }else if(nx<0){
+
+    keys.l=1;
+    keys.r=0;
+
+  }else{
+
+    keys.l=0;
+    keys.r=1;
+
+  }
+
+  /*
+    Petite influence verticale :
+    un mouvement vers le haut peut aussi
+    aider à corriger la trajectoire.
+  */
+
+  if(Math.abs(ny)>.65 && ny<0){
+    jb=4;
+  }
+
+}
+
+movePad.addEventListener('pointerdown',e=>{
+
+  if(st!=='play') return;
+
+  e.preventDefault();
+
+  padPointer=e.pointerId;
+
+  movePad.setPointerCapture(e.pointerId);
+
+  calculatePadCenter();
+
+  updatePad(e.clientX,e.clientY);
+
+  vibrate(7);
+
+});
+
+movePad.addEventListener('pointermove',e=>{
+
+  if(e.pointerId!==padPointer) return;
+
+  if(st!=='play') return;
+
+  e.preventDefault();
+
+  updatePad(e.clientX,e.clientY);
+
+});
+
+function endPad(e){
+
+  if(e.pointerId!==padPointer) return;
+
+  padPointer=null;
+
+  resetPad();
+
+}
+
+movePad.addEventListener('pointerup',endPad);
+movePad.addEventListener('pointercancel',endPad);
+movePad.addEventListener('lostpointercapture',()=>{
+
+  padPointer=null;
+  resetPad();
+
+});
+
+
+/* =========================================================
+   BOUTON SAUT
+   ========================================================= */
+
+function jumpPressed(e){
+
+  e.preventDefault();
+
+  if(st!=='play') return;
+
+  jb=10;
+
+  jumpBtn.classList.add('pressed');
+
+  vibrate(12);
+
+  sfx('j');
+
+}
+
+function jumpReleased(e){
+
+  e.preventDefault();
+
+  jumpBtn.classList.remove('pressed');
+
+}
+
+jumpBtn.addEventListener('pointerdown',jumpPressed);
+jumpBtn.addEventListener('pointerup',jumpReleased);
+jumpBtn.addEventListener('pointercancel',jumpReleased);
+jumpBtn.addEventListener('pointerleave',jumpReleased);
+
+
+/* =========================================================
+   PAUSE
+   ========================================================= */
+
+mobilePause.addEventListener('click',e=>{
+
+  e.preventDefault();
+
+  togglePause();
+
+  vibrate(8);
+
+});
+
+
+/* =========================================================
+   FEEDBACK TACTILE
+   ========================================================= */
+
+document.addEventListener('pointerdown',e=>{
+
+  if(e.pointerType!=='touch') return;
+
+  const target=e.target;
+
+  if(
+    target.closest('button') ||
+    target.closest('#movePad')
+  ) return;
+
+  const f=$('touchFeedback');
+
+  f.style.left=e.clientX+'px';
+  f.style.top=e.clientY+'px';
+
+  f.classList.remove('show');
+
+  void f.offsetWidth;
+
+  f.classList.add('show');
+
+});
+
+
+/* =========================================================
+   VIBRATION DES ACTIONS
+   ========================================================= */
+
+const oldAct=act;
+
+act=function(a){
+
+  oldAct(a);
+
+  if(
+    a==='play' ||
+    a==='retry' ||
+    a==='next'
+  ){
+    vibrate(15);
+  }
+
+  if(a==='pause'){
+    vibrate(8);
+  }
+
+  updateMobileUI();
+
+};
+
+
+/* =========================================================
+   DÉTECTION DU DÉMARRAGE
+   ========================================================= */
+
+const oldStart=start;
+
+start=function(l){
+
+  oldStart(l);
+
+  updateMobileUI();
+
+  if(isTouchDevice){
+    setTimeout(showMobileHint,500);
+  }
+
+};
+
+
+/* =========================================================
+   MENU
+   ========================================================= */
+
+const oldMenu=menu;
+
+menu=function(){
+
+  oldMenu();
+
+  resetPad();
+  updateMobileUI();
+
+};
+
+
+/* =========================================================
+   PAUSE / RETOUR
+   ========================================================= */
+
+const oldTogglePause=togglePause;
+
+togglePause=function(){
+
+  oldTogglePause();
+
+  if(st==='play'){
+
+    updateMobileUI();
+
+  }else{
+
+    mobileUI.classList.remove('active');
+    resetPad();
+
+  }
+
+};
+
+
+/* =========================================================
+   VISIBILITÉ
+   ========================================================= */
+
+document.addEventListener('visibilitychange',()=>{
+
+  if(document.hidden){
+
+    resetPad();
+
+  }
+
+});
+
+
+/* =========================================================
+   ORIENTATION / RESIZE
+   ========================================================= */
+
+addEventListener('resize',()=>{
+
+  if(st==='play'){
+    calculatePadCenter();
+  }
+
+});
+
+addEventListener('orientationchange',()=>{
+
+  setTimeout(()=>{
+    calculatePadCenter();
+  },250);
+
+});
+
+
+/* =========================================================
+   INITIALISATION
+   ========================================================= */
+
+setTimeout(()=>{
+
+  updateMobileUI();
+
+},100);
 </script>
 </body>
 </html> ajoute un sons (gameover.mp3) pour le game over 
