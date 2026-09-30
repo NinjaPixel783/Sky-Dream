@@ -64,6 +64,36 @@ p{margin:0;opacity:.85}
 <div id="bn"></div>
 
 <div id="hud">
+  <!-- CONTROLES MOBILE -->
+<div id="mobileControls">
+
+  <div id="mobileHint">
+    <span>👆</span>
+    <b>Glisse pour te déplacer</b>
+  </div>
+
+  <div id="movePad">
+    <div class="pad-ring">
+      <div class="pad-arrow up">▲</div>
+      <div class="pad-arrow left">◀</div>
+      <div class="pad-arrow right">▶</div>
+      <div class="pad-arrow down">▼</div>
+      <div id="padKnob"></div>
+    </div>
+  </div>
+
+  <button id="jumpBtn" aria-label="Sauter">
+    <span>↑</span>
+    <small>SAUT</small>
+  </button>
+
+  <button id="mobilePause" aria-label="Pause">
+    <svg class="i"><use href="#i-pause"/></svg>
+  </button>
+</div>
+
+<!-- INDICATEUR DE TOUCHER -->
+<div id="touchFeedback"></div>
   <span class="chip"><svg class="i" style="color:var(--cy)"><use href="#i-star"/></svg><span id="sc">0</span></span>
   <div id="bar"><i id="bf"></i></div>
   <span class="chip"><svg class="i"><use href="#i-coin"/></svg><span id="cn">0</span></span>
