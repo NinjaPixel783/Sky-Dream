@@ -760,6 +760,31 @@ p{margin:0;opacity:.85}
 .loadingBar i{display:block;width:0;height:100%;border-radius:99px;background:linear-gradient(90deg,#ff4fa3,#ffd23f,#3fe0ff);transition:width .12s linear}
 #loadingPercent{font-weight:700;opacity:.85}
 @keyframes loadSpin{to{transform:rotate(360deg)}}
+
+/* =========================================================
+   ADMIN PANEL
+   ========================================================= */
+#adminLogin,#adminPanel{z-index:60}
+.adminBox{
+  width:min(430px,92vw);padding:26px;border-radius:28px;
+  background:linear-gradient(145deg,rgba(12,27,60,.92),rgba(7,13,35,.94));
+  border:1px solid rgba(255,255,255,.2);box-shadow:0 25px 70px rgba(0,0,0,.55),0 0 40px rgba(63,224,255,.12);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)
+}
+.adminBadge{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:99px;background:rgba(255,210,63,.12);border:1px solid rgba(255,210,63,.3);color:#ffd23f;font-weight:700;font-size:13px}
+.adminBox h2{margin:12px 0 5px}.adminBox p{margin-bottom:16px}
+.adminInput{width:100%;height:54px;border:1px solid rgba(255,255,255,.2);border-radius:16px;background:rgba(255,255,255,.08);color:#fff;text-align:center;font:700 22px Fredoka,system-ui;outline:none;letter-spacing:.2em}
+.adminInput:focus{border-color:#3fe0ff;box-shadow:0 0 0 3px rgba(63,224,255,.12)}
+.adminError{height:20px;color:#ff6b86;font-size:13px;font-weight:700;opacity:0;transition:.2s}.adminError.show{opacity:1}
+.adminGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-top:4px}
+.adminAction{min-width:0!important;font-size:16px!important;padding:13px 10px!important}
+.adminDanger{background:linear-gradient(135deg,#ff4f70,#b52d55)!important}
+.adminSuccess{background:linear-gradient(135deg,#20d58a,#168dff)!important}
+.adminClose{margin-top:4px;width:100%}
+.adminStat{padding:12px;border-radius:16px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);font-size:14px}
+.adminStat b{display:block;font-size:22px;color:#ffd23f}
+@media(max-width:700px){.adminBox{padding:20px}.adminGrid{grid-template-columns:1fr 1fr}}
+
 </style>
 </head>
 <body>
@@ -824,6 +849,37 @@ p{margin:0;opacity:.85}
   <p id="loadingText">Chargement du ciel</p>
   <div class="loadingBar"><i id="loadingFill"></i></div>
   <span id="loadingPercent">0%</span>
+</section>
+
+<section id="adminLogin" class="scr">
+  <div class="adminBox">
+    <span class="adminBadge">⚙ PANEL ADMIN</span>
+    <h2>Accès administrateur</h2>
+    <p>Entre le code pour ouvrir les outils SkyDreams.</p>
+    <input id="adminCode" class="adminInput" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off">
+    <div id="adminError" class="adminError">Code incorrect</div>
+    <button class="btn b1" data-a="adminLogin">Déverrouiller</button>
+    <button class="btn b2" data-a="menu">Annuler</button>
+  </div>
+</section>
+
+<section id="adminPanel" class="scr">
+  <div class="adminBox">
+    <span class="adminBadge">✓ ADMIN CONNECTÉ</span>
+    <h2>SkyDreams Admin</h2>
+    <p>Outils de test et de gestion locale.</p>
+    <div class="adminGrid">
+      <div class="adminStat">Pièces<b id="adminCoins">0</b></div>
+      <div class="adminStat">Niveaux<b id="adminLevels">1/10</b></div>
+    </div>
+    <div class="adminGrid">
+      <button class="btn b2 adminAction" data-a="adminCoinsAdd">+1000 pièces</button>
+      <button class="btn adminSuccess adminAction" data-a="adminUnlock">Tout débloquer</button>
+      <button class="btn b3 adminAction" data-a="adminReset">Réinitialiser</button>
+      <button class="btn b2 adminAction" data-a="adminMusic">Musique: ON</button>
+    </div>
+    <button class="btn b2 adminClose" data-a="menu">Fermer</button>
+  </div>
 </section>
 
 <section id="menu" class="scr on">
@@ -964,12 +1020,13 @@ function updateMusic(){
     menuMusic.pause();
     return;
   }
-  if(st==='menu'||st==='levels'||st==='shop'||st==='pause'||st==='over'||st==='win'){
-    music.pause();
-    menuMusic.play().catch(()=>{});
-  }else if(st==='play'){
+  // Une seule musique de gameplay pour TOUS les niveaux/maps.
+  if(st==='play'||st==='pause'||st==='over'||st==='win'){
     menuMusic.pause();
     music.play().catch(()=>{});
+  }else if(st==='menu'||st==='levels'||st==='shop'||st==='admin'||st==='adminLogin'){
+    music.pause();
+    menuMusic.play().catch(()=>{});
   }
 }
 
@@ -1466,6 +1523,52 @@ function togglePause(){
   if(st==='play'){st='pause';show('pauseS')}
   else if(st==='pause'){st='play';show('')}
 }
+let adminUnlocked=false;
+const ADMIN_CODE='0911';
+function adminStats(){
+  const acn=$('adminCoins'),alp=$('adminLevels');
+  if(acn)acn.textContent=S.coins;
+  if(alp)alp.textContent=Math.min(S.unl,LV.length)+'/'+LV.length;
+  const mb=$('adminMusic');
+  if(mb)mb.textContent='Musique: '+(S.mute?'OFF':'ON');
+}
+function openAdmin(){
+  $('adminCode').value='';
+  $('adminError').classList.remove('show');
+  show('adminLogin');
+  st='adminLogin';
+  updateMusic();
+  setTimeout(()=>$('adminCode').focus(),80);
+}
+function checkAdmin(){
+  if($('adminCode').value===ADMIN_CODE){
+    adminUnlocked=true;st='admin';adminStats();show('admin');updateMusic();
+  }else{
+    $('adminError').classList.add('show');
+    $('adminCode').value='';
+    $('adminCode').focus();
+  }
+}
+function adminAction(a){
+  if(!adminUnlocked)return;
+  if(a==='adminCoinsAdd')S.coins+=1000;
+  if(a==='adminUnlock'){
+    S.unl=LV.length;
+    S.owned=SK.map((_,i)=>i);
+  }
+  if(a==='adminReset'){
+    if(confirm('Réinitialiser toute la progression SkyDreams ?')){
+      S={coins:0,best:0,unl:1,owned:[0],skin:0,mute:0};
+      save();
+    }
+  }
+  if(a==='adminMusic')S.mute^=1;
+  save();adminStats();
+  $('mb').textContent=S.best;$('mc').textContent=S.coins;
+  $('sndU').setAttribute('href',S.mute?'#i-mute':'#i-snd');
+  setVol();updateMusic();
+}
+
 function act(a){
   if(a=='play')start(lv);
   else if(a=='levels'){buildLevels();show('levels')}
@@ -1475,7 +1578,11 @@ function act(a){
   else if(a=='next')start(lv+1);
   else if(a=='pause')togglePause();
   else if(a=='snd'){S.mute^=1;setVol();save();$('sndU').setAttribute('href',S.mute?'#i-mute':'#i-snd');updateMusic()}
+  else if(a=='adminOpen')openAdmin();
+  else if(a=='adminLogin')checkAdmin();
+  else if(a.startsWith('admin'))adminAction(a);
 }
+$('adminCode').addEventListener('keydown',e=>{if(e.key==='Enter')checkAdmin()});
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-a],[data-l],[data-s]');if(!b)return;sfx('u');
   if(b.dataset.a)act(b.dataset.a);
