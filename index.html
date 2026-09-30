@@ -651,6 +651,15 @@ p{margin:0;opacity:.85}
 #snd{position:fixed;right:14px;top:calc(12px + env(safe-area-inset-top,0px));width:44px;height:44px;padding:0;border-radius:50%;border:2px solid rgba(255,255,255,.3);background:rgba(5,15,40,.5);color:#fff;font-size:20px;z-index:6;cursor:pointer}
 .big{font-size:56px;font-weight:700;color:var(--yel);line-height:1}
 @media(prefers-reduced-motion:reduce){#bn.go{animation-duration:.01s}}
+
+/* ECRAN DE CHARGEMENT */
+#loading{gap:16px;background:rgba(3,10,28,.72);backdrop-filter:blur(18px);z-index:30}
+.loadingOrb{width:86px;height:86px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(#ff4fa3,#ffd23f,#3fe0ff,#8b5cff,#ff4fa3);animation:loadSpin 1.15s linear infinite;box-shadow:0 0 35px rgba(63,224,255,.3)}
+.loadingCore{width:66px;height:66px;border-radius:50%;background:radial-gradient(circle at 35% 28%,#fff,#72e8ff 25%,#477cff 65%,#7b35ff);box-shadow:inset -7px -9px 15px rgba(0,0,0,.25)}
+.loadingBar{width:min(330px,76vw);height:12px;border-radius:99px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);overflow:hidden;box-shadow:inset 0 2px 5px rgba(0,0,0,.25)}
+.loadingBar i{display:block;width:0;height:100%;border-radius:99px;background:linear-gradient(90deg,#ff4fa3,#ffd23f,#3fe0ff);transition:width .12s linear}
+#loadingPercent{font-weight:700;opacity:.85}
+@keyframes loadSpin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
@@ -708,6 +717,14 @@ p{margin:0;opacity:.85}
   <span class="chip"><svg class="i"><use href="#i-coin"/></svg><span id="cn">0</span></span>
   <button id="pb" data-a="pause" aria-label="Pause"><svg class="i"><use href="#i-pause"/></svg></button>
 </div>
+
+<section id="loading" class="scr">
+  <div class="loadingOrb"><div class="loadingCore"></div></div>
+  <h2 id="loadingTitle">Préparation...</h2>
+  <p id="loadingText">Chargement du ciel</p>
+  <div class="loadingBar"><i id="loadingFill"></i></div>
+  <span id="loadingPercent">0%</span>
+</section>
 
 <section id="menu" class="scr on">
   <svg viewBox="0 0 100 60" width="120"><defs><linearGradient id="lg" x1="0" x2="1"><stop offset="0" stop-color="#ff4fa3"/><stop offset="1" stop-color="#ffd23f"/></linearGradient></defs><circle cx="50" cy="26" r="22" fill="url(#lg)"/><circle cx="42" cy="18" r="6" fill="#fff" opacity=".55"/><g fill="#fff" opacity=".92"><ellipse cx="30" cy="48" rx="20" ry="9"/><ellipse cx="55" cy="50" rx="28" ry="8"/><ellipse cx="78" cy="47" rx="16" ry="8"/></g></svg>
@@ -782,6 +799,10 @@ const SK=[
 let ac,mg,sg,mu,mstep=0,nt=0;
 let music=new Audio('music.mp3');
 music.loop=true;
+let menuMusic=new Audio('menu.mp3');
+menuMusic.loop=true;
+menuMusic.preload='auto';
+menuMusic.volume=.45;
 let gameOverSound=new Audio('gameover.mp3');
 gameOverSound.preload='auto';
 gameOverSound.volume=.75;
@@ -796,13 +817,14 @@ function setVol(){
     sg.gain.value=S.mute?0:.62;
   }
   music.volume=S.mute?0:.55;
+  menuMusic.volume=S.mute?0:.45;
 }
 
 function initA(){
   if(ac){
     if(ac.state==='suspended')ac.resume();
     setVol();
-    music.play().catch(()=>{});
+    updateMusic();
     return;
   }
 
@@ -828,8 +850,23 @@ function initA(){
 
     setVol();
     setVol();
-    music.play().catch(()=>{});
+    updateMusic();
   }catch(e){}
+}
+
+function updateMusic(){
+  if(S.mute){
+    music.pause();
+    menuMusic.pause();
+    return;
+  }
+  if(st==='menu'||st==='levels'||st==='shop'||st==='pause'||st==='over'||st==='win'){
+    music.pause();
+    menuMusic.play().catch(()=>{});
+  }else if(st==='play'){
+    menuMusic.pause();
+    music.play().catch(()=>{});
+  }
 }
 
 function tone(f,t,d,ty,v,dst,f2){
@@ -1257,25 +1294,44 @@ function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggl
 function banner(t){const b=$('bn');b.textContent=t;b.classList.remove('go');void b.offsetWidth;b.classList.add('go')}
 function resetWorld(){rows=[];gap=0;sx=sw=3;x=y=z=vy=tx=0;falling=0;parts=[]}
 function start(l){
-  lv=l;resetWorld();run=0;jb=0;st='play';show('');$('hud').classList.add('on');
-  $('bf').style.width='0';$('sc').textContent='0';$('cn').textContent=S.coins;
-  banner('Niveau '+(l+1)+' · '+LV[l][0]);
+  lv=l;resetWorld();run=0;jb=0;
+  show('loading');$('hud').classList.remove('on');
+  initA();updateMusic();
+  const fill=$('loadingFill'),pct=$('loadingPercent'),title=$('loadingTitle'),text=$('loadingText');
+  let progress=0;
+  const steps=['Préparation du ciel','Génération de la piste','Chargement des obstacles','Placement des pièces','Prêt !'];
+  fill.style.width='0%';pct.textContent='0%';title.textContent='Préparation...';text.textContent=steps[0];
+  const timer=setInterval(()=>{
+    progress+=Math.floor(Math.random()*18)+8;
+    if(progress>=100)progress=100;
+    fill.style.width=progress+'%';pct.textContent=progress+'%';
+    text.textContent=steps[Math.min(steps.length-1,Math.floor(progress/25))];
+    if(progress>=100){
+      clearInterval(timer);
+      setTimeout(()=>{
+        st='play';show('');$('hud').classList.add('on');
+        $('bf').style.width='0';$('sc').textContent='0';$('cn').textContent=S.coins;
+        updateMusic();banner('Niveau '+(l+1)+' · '+LV[l][0]);
+        updateMobileUI();
+      },180);
+    }
+  },55);
 }
 function endRun(w){
   st=w?'win':'over';const bonus=w?lv*15+30:0;
   S.coins+=run+bonus;const d=z|0;if(d>S.best)S.best=d;
   if(w)S.unl=Math.max(S.unl,Math.min(lv+2,LV.length));
   save();$('hud').classList.remove('on');
-  if(w){$('wc').textContent=run+bonus;$('nx').style.display=lv<LV.length-1?'flex':'none';sfx('w');burst(60,'#ffd23f',10,1);show('win')}
+  if(w){$('wc').textContent=run+bonus;$('nx').style.display=lv<LV.length-1?'flex':'none';sfx('w');burst(60,'#ffd23f',10,1);show('win');updateMusic()} 
   else{
     $('fs').textContent=d;
     $('fc').textContent=run;
     $('fb').textContent=S.best;
     if(!S.mute){gameOverSound.currentTime=0;gameOverSound.play().catch(()=>{});}
-    show('over');
+    show('over');updateMusic();
   }
 }
-function menu(){st='menu';lv=Math.min(lv,S.unl-1);resetWorld();$('hud').classList.remove('on');$('mb').textContent=S.best;$('mc').textContent=S.coins;show('menu')}
+function menu(){st='menu';lv=Math.min(lv,S.unl-1);resetWorld();$('hud').classList.remove('on');$('mb').textContent=S.best;$('mc').textContent=S.coins;show('menu');updateMusic()}
 function buildLevels(){
   $('lg2').innerHTML=LV.map((l,i)=>`<button class="card ${i<S.unl?'':'lock'}" data-l="${i}"><b>${i<S.unl?i+1:'<svg class="i"><use href="#i-lock"/></svg>'}</b>${l[0]}</button>`).join('');
 }
@@ -1306,7 +1362,7 @@ function act(a){
   else if(a=='retry')start(lv);
   else if(a=='next')start(lv+1);
   else if(a=='pause')togglePause();
-  else if(a=='snd'){S.mute^=1;setVol();save();$('sndU').setAttribute('href',S.mute?'#i-mute':'#i-snd')}
+  else if(a=='snd'){S.mute^=1;setVol();save();$('sndU').setAttribute('href',S.mute?'#i-mute':'#i-snd');updateMusic()}
 }
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-a],[data-l],[data-s]');if(!b)return;sfx('u');
