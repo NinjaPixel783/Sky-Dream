@@ -785,6 +785,35 @@ p{margin:0;opacity:.85}
 .adminStat b{display:block;font-size:22px;color:#ffd23f}
 @media(max-width:700px){.adminBox{padding:20px}.adminGrid{grid-template-columns:1fr 1fr}}
 
+
+/* =========================================================
+   SKY BALL — MULTIJOUEUR INTÉGRÉ
+   ========================================================= */
+.mpMenuBtn{background:linear-gradient(135deg,#6f7cff,#8b5cff)!important;}
+.mpMenuIcon{font-size:27px;line-height:1;margin-right:5px}
+#mpLayer{position:fixed;inset:0;z-index:50;display:none;font-family:'Lilita One','Arial Black',Impact,sans-serif;color:#fff;}
+#mpLayer.open{display:block}
+#mpBackdrop{position:absolute;inset:0;background:rgba(5,10,45,.66);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#mpMd{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;}
+.mpCard{position:relative;width:min(820px,94vw);max-height:92vh;overflow:auto;padding:28px;border-radius:30px;background:linear-gradient(160deg,rgba(55,85,225,.96),rgba(38,24,125,.97));border:5px solid #0b1050;box-shadow:0 12px 0 #080d38,inset 0 3px 0 rgba(255,255,255,.28);text-align:center}
+.mpCard h2{font-size:clamp(34px,6vw,52px);margin-bottom:12px;text-shadow:-2px -2px 0 #0b1050,2px 2px 0 #0b1050}
+.mpClose{position:absolute;right:14px;top:12px;width:48px;height:48px;border-radius:15px;background:#e8402f;border:4px solid #0b1050;color:#fff;font:700 25px Arial;cursor:pointer}
+.mpBtn{font:inherit;font-size:23px;color:#fff;padding:10px 22px;margin:7px;border-radius:18px;border:4px solid #0b1050;background:linear-gradient(#5d82ff,#3153d8);box-shadow:0 5px 0 #080d38;cursor:pointer}
+.mpBtn:hover{filter:brightness(1.1)}.mpBtn:active{transform:translateY(3px);box-shadow:0 2px 0 #080d38}.mpBtn.gold{background:linear-gradient(#ffd83a,#ffa800)}
+.mpInput{font:inherit;font-size:23px;padding:10px 14px;border-radius:16px;border:4px solid #0b1050;background:#eef4ff;color:#0b1050;width:min(300px,80vw);margin:7px;text-align:center}
+.mpTeams{display:flex;gap:14px;margin:14px 0}.mpTeam{flex:1;border:4px solid var(--team);border-radius:20px;background:rgba(0,0,0,.22);padding:10px;min-height:130px}.mpTeam h3{margin-bottom:8px}
+.mpPlayer{display:flex;align-items:center;gap:10px;padding:7px 9px;text-align:left;margin:6px 0;background:rgba(255,255,255,.11);border-radius:14px}.mpPlayer span{flex:1}.mpPlayer small{display:block;font-size:15px;color:#8fe6ff}
+.mpAv{display:inline-block;width:42px;height:42px;flex:none;border-radius:50%;border:3px solid #0b1050;background:radial-gradient(circle at 35% 30%,hsl(var(--h) 100% 78%),hsl(var(--h) 90% 52%) 58%,hsl(calc(var(--h) + 35) 80% 34%));position:relative}.mpAv:before,.mpAv:after{content:"";position:absolute;top:30%;width:27%;height:34%;border-radius:50%;background:radial-gradient(circle at 60% 55%,#0b1050 36%,#fff 40%);border:2px solid #0b1050}.mpAv:before{left:18%}.mpAv:after{left:52%}
+.mpCode{display:inline-block;font-size:42px;letter-spacing:6px;padding:5px 22px;border-radius:16px;background:#10196a;border:4px dashed #8fe6ff;cursor:pointer}
+.mpDot{width:14px;height:14px;border-radius:50%;background:#777;display:inline-block;flex:none}.mpDot.on{background:#43e65a}
+.mpSpin{width:70px;height:70px;margin:18px auto;border:9px solid rgba(255,255,255,.3);border-top-color:#ffd83a;border-radius:50%;animation:mpSpin 1s linear infinite}@keyframes mpSpin{to{transform:rotate(1turn)}}
+#mpNet{position:absolute;left:50%;top:8px;transform:translateX(-50%);background:#e8402f;border:3px solid #0b1050;border-radius:14px;padding:3px 18px;font-size:20px;z-index:90;display:none}
+#mpToast{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);z-index:91;display:flex;flex-direction:column;gap:7px;align-items:center;width:min(92vw,700px);pointer-events:none}.mpToastItem{background:#10196a;border:3px solid #8fe6ff;border-radius:16px;padding:8px 20px;font-size:21px;pointer-events:auto}
+#mpGame{position:absolute;inset:0;display:none;background:#1668f0}.mpGameCanvas{width:100%;height:100%;display:block;touch-action:none}
+#mpDash{position:absolute;right:30px;bottom:30px;width:150px;height:86px;border-radius:45px}
+#mpResult{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(8,14,80,.72);font-size:42px;text-align:center}.mpResult h1{font-size:clamp(70px,13vw,150px);color:#ffd83a;text-shadow:-5px -5px 0 #0b1050,5px 5px 0 #0b1050}
+@media(max-width:700px){.mpTeams{gap:8px}.mpCard{padding:22px 14px}.mpBtn{font-size:19px}.mpPlayer small{font-size:13px}.mpCode{font-size:32px}#mpDash{width:120px;height:70px;right:18px;bottom:18px}}
+
 </style>
 </head>
 <body>
@@ -893,6 +922,7 @@ p{margin:0;opacity:.85}
     <button class="btn b1" data-a="play"><svg class="btnIcon" viewBox="0 0 32 32"><path d="M11 7.5 25 16 11 24.5z" fill="white" stroke="rgba(255,255,255,.35)" stroke-width="2" stroke-linejoin="round"/><path d="M7 8v16" stroke="white" stroke-width="3" stroke-linecap="round" opacity=".7"/></svg>JOUER</button>
     <button class="btn b2" data-a="levels"><svg class="btnIcon" viewBox="0 0 32 32"><rect x="5" y="5" width="9" height="9" rx="2" fill="white"/><rect x="18" y="5" width="9" height="9" rx="2" fill="white" opacity=".88"/><rect x="5" y="18" width="9" height="9" rx="2" fill="white" opacity=".88"/><rect x="18" y="18" width="9" height="9" rx="2" fill="white"/></svg>NIVEAUX</button>
     <button class="btn b3" data-a="shop"><svg class="btnIcon" viewBox="0 0 32 32"><path d="M6 11h20l-2 15H8z" fill="white" opacity=".95"/><path d="M11 11a5 5 0 0 1 10 0" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"/><circle cx="16" cy="19" r="3.5" fill="#ffad27"/><path d="M14.5 19h3M16 17.5v3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>BOUTIQUE</button>
+    <button class="btn b4 mpMenuBtn" type="button" onclick="mpOpen()"><span class="mpMenuIcon">👥</span>MULTIJOUEUR</button>
   </div>
 </section>
 
@@ -914,6 +944,22 @@ p{margin:0;opacity:.85}
   <button class="btn b1" id="nx" data-a="next"><svg class="i"><use href="#i-play"/></svg>Niveau suivant</button>
   <button class="btn b3" data-a="retry"><svg class="i"><use href="#i-redo"/></svg>Rejouer</button>
   <button class="btn b2" data-a="menu"><svg class="i"><use href="#i-home"/></svg>Menu</button></section>
+
+
+<!-- =========================================================
+     SKY BALL — MULTIJOUEUR
+     ========================================================= -->
+<div id="mpLayer" aria-hidden="true">
+  <div id="mpBackdrop"></div>
+  <div id="mpNet"></div>
+  <div id="mpToast"></div>
+  <div id="mpMd"></div>
+  <div id="mpGame">
+    <canvas id="mpCv" class="mpGameCanvas"></canvas>
+    <button id="mpDash" class="mpBtn gold" type="button">DASH</button>
+    <div id="mpResult"><h1 id="mpRt"></h1><div id="mpRd"></div><button class="mpBtn gold" type="button" onclick="mpBack()">Retour au lobby</button></div>
+  </div>
+</div>
 
 <script>
 /* Basé sur SKYDREAMS de Frank Force (JS1024 2026) — moteur 3D pseudo-perspective conservé,
@@ -2012,6 +2058,67 @@ setTimeout(()=>{
   updateMobileUI();
 
 },100);
+
+/* =========================================================
+   SKY BALL — CLIENT MULTIJOUEUR
+   Serveur compatible avec server.js fourni.
+   ========================================================= */
+const mpQ=s=>document.querySelector(s);
+const mpLs={g:k=>{try{return localStorage.getItem(k)}catch(e){return null}},s:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}}};
+let mpProf={name:mpLs.g('mp_nm')||'SkyPlayer',av:+(mpLs.g('mp_av')||205)},mpTok=mpLs.g('mp_tk'),mpWs=null,mpMe=null,mpRoom=null,mpFriendsList=[],mpInv=[],mpLb=[],mpTr=1250,mpOk=0,mpRetry=0,mpG=null,mpCur='',mpLastInput='',mpJoinPointer=null,mpJoinStart=null,mpJv={x:0,y:0};
+const MP_TEAM_NAMES=['Bleue','Orange'],MP_TEAM_COLORS=['#3b9bff','#ff8a1f'],MP_HUES=[205,280,340,20,50,130,170,250];
+const mpEsc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const mpAv=(h,s=44)=>`<i class="mpAv" style="--h:${h};width:${s}px;height:${s}px"></i>`;
+function mpToast(m,action,fn){const d=document.createElement('div');d.className='mpToastItem';d.textContent=m+' ';if(action){const b=document.createElement('button');b.className='mpBtn gold';b.style.fontSize='16px';b.textContent=action;b.onclick=()=>{try{fn()}finally{d.remove()}};d.appendChild(b)}mpQ('#mpToast').appendChild(d);setTimeout(()=>d.remove(),action?9000:3000)}
+function mpOpen(){mpQ('#mpLayer').classList.add('open');mpQ('#mpLayer').setAttribute('aria-hidden','false');mpShowMenu()}
+function mpClose(){if(mpG)mpBack();mpQ('#mpLayer').classList.remove('open');mpQ('#mpLayer').setAttribute('aria-hidden','true');mpQ('#mpMd').innerHTML=''}
+mpQ('#mpBackdrop').addEventListener('click',()=>{if(!mpG)mpClose()});
+function mpModal(title,body,key){mpCur=key||title;mpQ('#mpMd').innerHTML=`<div class="mpCard"><h2>${title}</h2><button class="mpClose" onclick="mpCloseModal()" aria-label="Fermer">✕</button>${body}</div>`;mpQ('#mpMd').style.display='flex'}
+function mpCloseModal(){mpCur='';mpQ('#mpMd').innerHTML=''}
+function mpShowMenu(){mpModal('Sky Ball — Multijoueur',`<p>Joue avec d'autres joueurs en temps réel.</p><button class="mpBtn gold" onclick="mpPlay()">🎮 Jouer en ligne</button><button class="mpBtn" onclick="mpProfile()">👤 Profil</button><button class="mpBtn" onclick="mpFriends()">👥 Amis</button><button class="mpBtn" onclick="mpBoard()">🏆 Classement</button><button class="mpBtn" onclick="mpSettings()">⚙ Serveur</button>`,'menu')}
+function mpUrl(){const u=mpLs.g('mp_ws');if(u)return u;return /^https?:$/.test(location.protocol)?(location.protocol==='https:'?'wss://':'ws://')+location.host:'ws://localhost:8080'}
+function mpConnect(){if(mpWs&&(mpWs.readyState===0||mpWs.readyState===1))return;try{mpWs=new WebSocket(mpUrl())}catch(e){return mpLater()}mpWs.onopen=()=>{mpRetry=0;mpSend({t:'hi',name:mpProf.name,av:mpProf.av,tk:mpTok})};mpWs.onmessage=e=>{try{mpRx(JSON.parse(e.data))}catch(err){}};mpWs.onclose=()=>{mpSetOnline(0);mpLater()};mpWs.onerror=()=>mpSetOnline(0)}
+function mpLater(){clearTimeout(mpRetryTimer);mpRetryTimer=setTimeout(mpConnect,Math.min(1000*2**mpRetry++,8000))}let mpRetryTimer=null;
+function mpSend(m){if(mpWs&&mpWs.readyState===1&&mpOk){mpWs.send(JSON.stringify(m));return true}mpToast('Serveur hors ligne — lance server.js');return false}
+function mpSetOnline(v){mpOk=v?1:0;mpQ('#mpNet').style.display=v?'none':'block';mpQ('#mpNet').textContent='Hors ligne — reconnexion…'}
+function mpRx(m){switch(m.t){
+case'hi':mpMe=m.id;mpTok=m.tk;mpLs.s('mp_tk',mpTok);mpTr=m.tr||1250;mpProf.name=m.name||mpProf.name;mpSetOnline(1);if(m.re)mpToast('Reconnecté');break;
+case'me':mpTr=m.tr||mpTr;break;
+case'friends':mpFriendsData(m.l);break;
+case'room':mpRoom=m.r;if(!mpRoom){if(['lobby','friends'].includes(mpCur))mpCloseModal()}else if(mpRoom.st==='lobby'&&!mpG&&mpCur!=='friends')mpLobby();break;
+case'inv':mpInv.unshift(m.from);mpToast(`${mpEsc(m.from)} t'invite`,'Rejoindre',()=>mpSend({t:'join',c:m.c}));break;
+case'q':if(mpCur==='q'){const e=mpQ('#mpQn');if(e)e.textContent=`Recherche d'adversaires… (${m.n} en file)`}break;
+case'start':mpBegin(m);break;case's':mpUpdate(m);break;case'end':mpFinish(m);break;
+case'lb':mpLb=m.l||[];if(mpCur==='lb')mpBoard();break;case'err':mpToast(m.m||'Erreur');break}}
+function mpPlay(){mpModal('Mode multijoueur',`<p>Élimination par équipes : pousse les adversaires hors de la plateforme.</p><button class="mpBtn gold" onclick="mpQueue()">⚡ Match rapide</button><button class="mpBtn" onclick="mpCreate()">＋ Créer une partie</button><div><input id="mpCd" class="mpInput" maxlength="4" placeholder="CODE"><button class="mpBtn" onclick="mpJoin(document.getElementById('mpCd').value)">Rejoindre</button></div>`,'play')}
+function mpQueue(){if(mpSend({t:'q'}))mpModal('Matchmaking',`<div class="mpSpin"></div><p id="mpQn">Recherche d'adversaires…</p><button class="mpBtn" onclick="mpSend({t:'uq'});mpPlay()">Annuler</button>`,'q')}
+function mpCreate(){mpSend({t:'create'})}
+function mpJoin(c){mpSend({t:'join',c:String(c||'').toUpperCase()})}
+function mpLobby(){const r=mpRoom,mn=r.p.find(p=>p.id===mpMe)||{};mpModal('Lobby',`<div class="mpCode" onclick="navigator.clipboard&&navigator.clipboard.writeText('${r.c}');mpToast('Code copié')">${r.c}</div><div class="mpTeams">${[0,1].map(t=>`<div class="mpTeam" style="--team:${MP_TEAM_COLORS[t]}"><h3>Équipe ${MP_TEAM_NAMES[t]}</h3>${r.p.filter(p=>p.team===t).map(p=>`<div class="mpPlayer">${mpAv(p.av,40)}<span>${mpEsc(p.name)}${p.id===r.h?' ★':''}<small>${p.on?(p.ready?'Prêt':'En attente'):'Déconnecté'}</small></span></div>`).join('')}</div>`).join('')}</div><button class="mpBtn" onclick="mpSend({t:'team'})">Changer d'équipe</button><button class="mpBtn ${mn.ready?'':'gold'}" onclick="mpSend({t:'ready'})">${mn.ready?'Annuler prêt':'Prêt'}</button>${r.h===mpMe?`<button class="mpBtn gold" onclick="mpSend({t:'go'})">Lancer</button>`:''}<br><button class="mpBtn" onclick="mpFriends(true)">Inviter un ami</button><button class="mpBtn" onclick="mpSend({t:'leave'});mpPlay()">Quitter</button>`,'lobby')}
+function mpFriendsData(list){mpFriends=list||[];if(mpCur==='friends')mpFriendsView(false)}
+function mpFriends(invite){mpFriendsView(invite)}
+function mpFriendsView(invite){const title=invite?'Inviter un ami':'Amis';mpCur='friends';mpModal(title,`<div><input id="mpFn" class="mpInput" placeholder="Pseudo"><button class="mpBtn" onclick="mpSend({t:'fadd',n:document.getElementById('mpFn').value})">Ajouter</button></div>${mpFriendsList.length?mpFriendsList.map(f=>`<div class="mpPlayer"><span class="mpDot ${f.on?'on':''}"></span>${mpAv(f.av,40)}<span>${mpEsc(f.name)}<small>${f.on?(f.g?'En partie':'En ligne'):'Hors ligne'}</small></span>${f.on&&mpRoom?`<button class="mpBtn" style="font-size:15px;padding:6px 10px" data-n="${mpEsc(f.name)}" onclick="mpSend({t:'inv',n:this.dataset.n})">Inviter</button>`:''}</div>`).join(''):'<p>Aucun ami pour le moment.</p>'}${invite?`<button class="mpBtn" onclick="mpLobby()">Retour au lobby</button>`:''}`,'friends')}
+function mpProfile(){mpModal('Profil',`<div><input id="mpPi" class="mpInput" maxlength="14" value="${mpEsc(mpProf.name)}"></div><div>${MP_HUES.map(h=>`<span style="display:inline-block;margin:8px;cursor:pointer" onclick="mpProf.av=${h};mpSaveProfile()">${mpAv(h,64)}</span>`).join('')}</div><button class="mpBtn gold" onclick="mpSaveProfile(true)">Enregistrer</button>`,'profile')}
+function mpSaveProfile(close){const v=mpQ('#mpPi');if(v&&v.value.trim())mpProf.name=v.value.trim().slice(0,14);mpLs.s('mp_nm',mpProf.name);mpLs.s('mp_av',mpProf.av);if(mpOk)mpSend({t:'prof',name:mpProf.name,av:mpProf.av});if(close)mpCloseModal();else mpProfile()}
+function mpBoard(){mpCur='lb';if(!mpLb.length)mpSend({t:'lb'});mpModal('Classement',mpLb.length?mpLb.map((p,i)=>`<div class="mpPlayer"><b>${i+1}</b><span>${mpEsc(p.name)}</span><b style="color:#ffd23a">🏆 ${p.tr}</b></div>`).join(''):'<p>Chargement…</p>','lb')}
+function mpSettings(){mpModal('Serveur',`<p>WebSocket temps réel</p><input id="mpWu" class="mpInput" style="width:min(560px,90%)" value="${mpEsc(mpUrl())}"><br><button class="mpBtn gold" onclick="mpLs.s('mp_ws',document.getElementById('mpWu').value);mpToast('Adresse enregistrée');if(mpWs)mpWs.close()">Enregistrer</button>`,'settings')}
+function mpBegin(m){mpG={pl:{},r:360,cd:3,over:0};(m.p||[]).forEach(p=>mpG.pl[p.id]={...p,x:0,y:0,tx:0,ty:0,al:1,f:0});mpQ('#mpMd').style.display='none';mpQ('#mpGame').style.display='block';mpQ('#mpResult').style.display='none';mpResize();mpMpLoop();}
+function mpResize(){const cv=mpQ('#mpCv');cv.width=Math.max(320,innerWidth*devicePixelRatio);cv.height=Math.max(240,innerHeight*devicePixelRatio)}
+function mpUpdate(m){if(!mpG)return;mpG.r=m.r;mpG.cd=m.cd;(m.p||[]).forEach(a=>{const p=mpG.pl[a[0]];if(!p)return;if(!p.f){p.x=a[1];p.y=a[2];p.f=1}p.tx=a[1];p.ty=a[2];p.al=a[3]})}
+function mpFinish(m){if(!mpG)return;mpG.over=1;mpTr=m.tr||mpTr;const t=mpG.pl[mpMe]?mpG.pl[mpMe].team:-1,win=m.w===t;mpQ('#mpRt').textContent=m.w<0?'ÉGALITÉ':win?'VICTOIRE !':'DÉFAITE';mpQ('#mpRd').textContent=m.w<0?'':(win?'+25':'-10')+' trophées';mpQ('#mpResult').style.display='flex'}
+function mpBack(){mpG=null;mpQ('#mpGame').style.display='none';mpQ('#mpResult').style.display='none';if(mpRoom)mpLobby();else mpPlay()}
+function mpMpLoop(){if(!mpG)return;const cv=mpQ('#mpCv'),c=cv.getContext('2d'),d=devicePixelRatio||1,w=cv.width/d,h=cv.height/d;c.setTransform(d,0,0,d,0,0);const gr=c.createLinearGradient(0,0,0,h);gr.addColorStop(0,'#1668f0');gr.addColorStop(1,'#bfe6ff');c.fillStyle=gr;c.fillRect(0,0,w,h);c.save();c.translate(w/2,h/2);c.beginPath();c.arc(0,0,mpG.r,0,Math.PI*2);c.fillStyle='#5fbf3a';c.fill();c.lineWidth=16;c.strokeStyle='#8a5a4a';c.stroke();c.font='22px Lilita One,sans-serif';c.textAlign='center';for(const p of Object.values(mpG.pl)){if(!p.al)continue;p.x+=(p.tx-p.x)*.4;p.y+=(p.ty-p.y)*.4;c.beginPath();c.arc(p.x,p.y,26,0,Math.PI*2);c.fillStyle=`hsl(${p.av} 90% 55%)`;c.fill();c.lineWidth=6;c.strokeStyle=MP_TEAM_COLORS[p.team];c.stroke();for(const d2 of[-9,9]){c.beginPath();c.arc(p.x+d2,p.y-4,7,0,Math.PI*2);c.fillStyle='#fff';c.fill();c.beginPath();c.arc(p.x+d2+2,p.y-3,3.5,0,Math.PI*2);c.fillStyle='#0b1050';c.fill()}c.fillStyle='#fff';c.strokeStyle='#0b1050';c.lineWidth=5;c.strokeText(p.name,p.x,p.y-38);c.fillText(p.name+(p.id===mpMe?' ▼':''),p.x,p.y-38)}c.restore();c.font='28px Lilita One,sans-serif';c.textAlign='left';[0,1].forEach(t=>{const n=Object.values(mpG.pl).filter(p=>p.team===t&&p.al).length;c.fillStyle=MP_TEAM_COLORS[t];c.fillText(`${MP_TEAM_NAMES[t]} : ${n}`,18,42+t*38)});const my=mpG.pl[mpMe];if(my&&!my.al&&!mpG.over){c.fillStyle='#fff';c.textAlign='center';c.font='28px Lilita One,sans-serif';c.fillText('Éliminé ! Regarde la fin du match',w/2,h-35)}if(mpG.cd>0){c.font=`${Math.min(170,w*.22)}px Lilita One,sans-serif`;c.textAlign='center';c.fillStyle='#ffd83a';c.strokeStyle='#0b1050';c.lineWidth=10;c.strokeText(mpG.cd,w/2,h/2+55);c.fillText(mpG.cd,w/2,h/2+55)}requestAnimationFrame(mpMpLoop)}
+function mpSendInput(x,y){const l=Math.hypot(x,y);if(l>1){x/=l;y/=l}const k=x.toFixed(2)+','+y.toFixed(2);if(k!==mpLastInput){mpLastInput=k;mpSend({t:'in',x,y})}}
+function mpDash(){mpSend({t:'d'})}
+mpQ('#mpDash').addEventListener('click',mpDash);
+mpQ('#mpCv').addEventListener('pointerdown',e=>{if(!mpG)return;mpJoinPointer=e.pointerId;mpJoinStart={x:e.clientX,y:e.clientY};mpQ('#mpCv').setPointerCapture(e.pointerId);mpSendInput(0,0)});
+mpQ('#mpCv').addEventListener('pointermove',e=>{if(e.pointerId!==mpJoinPointer||!mpJoinStart)return;mpSendInput((e.clientX-mpJoinStart.x)/90,(e.clientY-mpJoinStart.y)/90)});
+function mpPointerUp(e){if(e.pointerId===mpJoinPointer){mpJoinPointer=null;mpJoinStart=null;mpSendInput(0,0)}}
+mpQ('#mpCv').addEventListener('pointerup',mpPointerUp);mpQ('#mpCv').addEventListener('pointercancel',mpPointerUp);
+addEventListener('resize',()=>{if(mpG)mpResize()});
+addEventListener('keydown',e=>{if(!mpG)return;const k=e.key.toLowerCase();let x=0,y=0;if(k==='z'||k==='w'||k==='arrowup')y=-1;if(k==='s'||k==='arrowdown')y=1;if(k==='q'||k==='a'||k==='arrowleft')x=-1;if(k==='d'||k==='arrowright')x=1;if(e.code==='Space'){e.preventDefault();mpDash()}if(x||y)mpSendInput(x,y)});
+mpConnect();
+
 </script>
 </body>
 </html> 
