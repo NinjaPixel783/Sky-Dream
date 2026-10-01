@@ -839,15 +839,56 @@ input{font:inherit;font-size:28px;padding:10px 16px;border-radius:18px;border:5p
 #menu .p{background:linear-gradient(#2c43b4,#17216e);border:4px solid #0b1050;border-radius:24px;box-shadow:0 6px 0 #080d38,inset 0 2px 0 rgba(255,255,255,.28);}
 #menu .b{cursor:pointer;transition:transform .08s,filter .15s;}
 #menu .b:hover{filter:brightness(1.12)}#menu .b:active{transform:translateY(3px)}
-@media(min-width:701px){#menu{position:fixed!important;inset:0!important;}#menu>.sbStage{transform:translate(calc((100vw - 1536px)/2),calc((100vh - 1024px)/2));}}
-@media(max-width:700px){#menu>.sbStage{transform:scale(min(calc(100vw/1536),calc(100vh/1024)));transform-origin:top left;left:50%;margin-left:-768px;top:50%;margin-top:-512px;}}
+@media(min-width:701px){#menu{position:fixed!important;inset:0!important;}}
+@media(max-width:700px){
+  #menu>.sbStage{
+    left:50%;top:50%;margin:0;
+    transform:translate(-50%,-50%) scale(min(calc(100vw / 1536),calc(100vh / 1024)));
+    transform-origin:center center;
+  }
+}
+@media(max-width:700px) and (orientation:portrait){
+  #menu .sbTop{left:26px;right:26px;top:22px;height:64px}
+  #menu .sbBrand{font-size:27px;gap:9px}
+  #menu .sbBrandMark{width:46px;height:46px;border-radius:15px}
+  #menu .sbTopRight{gap:7px}
+  #menu .sbPill{min-width:86px;height:42px;font-size:15px}
+  #menu .sbIconBtn{width:44px;height:44px}
+  #menu .sbProfile{left:26px;top:105px;width:250px;height:64px}
+  #menu .sbHero{top:190px;width:90%}
+  #menu .sbTitle{font-size:64px!important}
+  #menu .sbSubtitle{font-size:13px}
+  #menu .sbPodium{top:365px;width:570px;height:290px}
+  #menu #sbBall{top:385px;width:170px;height:170px}
+  #menu .sbCards{top:680px;gap:12px}
+  #menu .modeCard{width:275px;height:155px;padding:19px 21px}
+  #menu .sbQuick{bottom:38px}
+}
+@media(max-width:430px) and (orientation:portrait){
+  #menu .sbTop{left:20px;right:20px}
+  #menu .sbBrand{font-size:24px}
+  #menu .sbTopRight .sbPill{display:none}
+  #menu .sbProfile{left:20px;top:96px;width:225px}
+  #menu .sbHero{top:180px}
+  #menu .sbTitle{font-size:58px!important}
+  #menu .sbSubtitle{font-size:11px;letter-spacing:.16em}
+  #menu .sbPodium{top:345px;width:520px;height:270px}
+  #menu #sbBall{top:370px;width:155px;height:155px}
+  #menu .sbCards{top:650px;flex-direction:column;gap:12px}
+  #menu .modeCard{width:340px;height:115px;padding:15px 18px}
+  #menu .modeCard .modeIcon{width:38px;height:38px;margin-bottom:7px}
+  #menu .modeCard h3{font-size:26px}
+  #menu .modeCard p{font-size:12px}
+  #menu .sbQuick{bottom:24px;gap:6px}
+  #menu .quick{height:42px;padding:0 11px;font-size:12px}
+}
 
 /* =========================================================
    SKY BALL — NEW GLASSMORPHIC MAIN MENU
    ========================================================= */
 #menu{padding:0!important;display:none!important;overflow:hidden;background:#05051a!important;backdrop-filter:none!important;z-index:5!important;color:#fff}
 #menu.on{display:block!important}
-#menu .sbStage{position:absolute;left:0;top:0;width:1536px;height:1024px;transform-origin:0 0;overflow:hidden}
+#menu .sbStage{position:absolute;left:50%;top:50%;width:1536px;height:1024px;transform:translate(-50%,-50%) scale(min(calc(100vw / 1536),calc(100vh / 1024)));transform-origin:center center;overflow:hidden}
 #menu .sbWallpaper{position:absolute;inset:0;overflow:hidden;background:
   radial-gradient(circle at 50% 42%,rgba(115,65,255,.36),transparent 30%),
   radial-gradient(circle at 15% 18%,rgba(36,198,255,.18),transparent 24%),
@@ -856,7 +897,7 @@ input{font:inherit;font-size:28px;padding:10px 16px;border-radius:18px;border:5p
 #menu .sbWallpaper::before{content:"";position:absolute;inset:-20%;background:
   radial-gradient(circle at 10% 20%,#fff 0 1px,transparent 2px),radial-gradient(circle at 22% 75%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 35% 12%,#fff 0 1px,transparent 2px),radial-gradient(circle at 47% 83%,#fff 0 1.2px,transparent 2px),radial-gradient(circle at 63% 25%,#fff 0 1.5px,transparent 2.5px),radial-gradient(circle at 78% 72%,#fff 0 1px,transparent 2px),radial-gradient(circle at 91% 15%,#fff 0 1.2px,transparent 2px);background-size:420px 420px,510px 510px,370px 370px,470px 470px,530px 530px,450px 450px,390px 390px;opacity:.5;animation:sbStars 22s linear infinite;}
 #menu .sbWallpaper::after{content:"";position:absolute;left:-8%;right:-8%;bottom:-18%;height:55%;background:radial-gradient(ellipse at center,rgba(87,47,191,.42),rgba(6,6,26,0) 67%);filter:blur(20px);}
-@keyframes sbStars{to{transform:translate3%,2%) rotate(.5deg)}}
+@keyframes sbStars{to{transform:translate(3%,2%) rotate(.5deg)}}
 #menu .sbGlow{position:absolute;left:50%;top:42%;width:760px;height:460px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(ellipse,rgba(84,93,255,.18),transparent 68%);filter:blur(10px);animation:sbGlow 3.5s ease-in-out infinite}
 @keyframes sbGlow{50%{transform:translate(-50%,-50%) scale(1.08);opacity:.75}}
 #menu .glass{background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.045));border:1px solid rgba(255,255,255,.25);box-shadow:0 22px 55px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.22);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
@@ -905,7 +946,7 @@ input{font:inherit;font-size:28px;padding:10px 16px;border-radius:18px;border:5p
 #menu .quick svg{width:21px;height:21px}
 #menu .sbHint{position:absolute;left:50%;top:92%;transform:translate(-50%,-50%);font:600 13px Fredoka,sans-serif;color:rgba(207,224,255,.55);letter-spacing:.06em;z-index:12}
 #menu .sbVersion{position:absolute;right:42px;bottom:30px;color:rgba(207,224,255,.45);font:600 11px Fredoka,sans-serif;z-index:12}
-@media(max-width:700px){#menu .sbStage{transform-origin:0 0}.sbTitle{font-size:74px!important}}
+@media(max-width:700px){#menu .sbStage{transform-origin:center center}}
 
 /* Attached launch/loading artwork */
 #loading{padding:0!important;gap:0!important;background:#02020a!important;overflow:hidden!important}
@@ -919,6 +960,84 @@ input{font:inherit;font-size:28px;padding:10px 16px;border-radius:18px;border:5p
 #loadingPercent{font:700 13px Fredoka,sans-serif!important}
 #loadingBall{display:none!important}
 
+
+/* =========================================================
+   SKY BALL — GAME OVER MENU
+   ========================================================= */
+.gameOverScreen{
+  padding:clamp(14px,3vw,32px);
+  background:radial-gradient(circle at 50% 36%,rgba(76,190,255,.16),transparent 34%),rgba(4,8,26,.52);
+}
+.gameOverCard{
+  position:relative;
+  width:min(560px,94vw);
+  max-height:min(90vh,820px);
+  overflow:auto;
+  padding:clamp(24px,5vw,42px) clamp(18px,5vw,44px) clamp(22px,4vw,34px);
+  border-radius:32px;
+  border:2px solid rgba(255,255,255,.22);
+  background:linear-gradient(150deg,rgba(19,33,82,.82),rgba(18,8,55,.88));
+  box-shadow:0 25px 70px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.2);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.gameOverCard::before{
+  content:"";position:absolute;inset:1px;border-radius:30px;pointer-events:none;
+  background:linear-gradient(120deg,rgba(255,255,255,.12),transparent 30%,transparent 70%,rgba(109,87,255,.1));
+}
+.gameOverGlow{
+  position:absolute;left:50%;top:76px;width:220px;height:220px;transform:translateX(-50%);
+  border-radius:50%;background:radial-gradient(circle,rgba(72,219,255,.28),rgba(116,75,255,.1) 42%,transparent 72%);
+  filter:blur(8px);pointer-events:none;
+}
+.gameOverBall{
+  position:relative;width:108px;height:108px;margin:0 auto 12px;
+  filter:drop-shadow(0 16px 22px rgba(0,0,0,.32));
+  animation:gameOverBallFloat 2.6s ease-in-out infinite;
+}
+.gameOverBall .ballCore{
+  position:absolute;inset:0;border-radius:50%;
+  background:radial-gradient(circle at 30% 24%,#fff 0 9%,var(--ball1,#8eeaff) 30%,var(--ball2,#062c7a) 76%,#030816);
+  box-shadow:inset -12px -15px 22px rgba(0,0,0,.28),inset 8px 7px 15px rgba(255,255,255,.22),0 0 30px rgba(80,210,255,.22);
+}
+.gameOverBall .ballCore::after{content:"";position:absolute;left:21px;top:16px;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.72);filter:blur(1px)}
+.gameOverBall .ballRing{
+  position:absolute;inset:-10px;border:4px solid rgba(255,255,255,.24);border-left-color:#fff;border-radius:50%;
+  animation:gameOverRing .9s linear infinite;
+}
+@keyframes gameOverBallFloat{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(4deg)}}
+@keyframes gameOverRing{to{transform:rotate(360deg)}}
+.gameOverBadge{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:7px 13px;border-radius:99px;font-size:12px;font-weight:800;letter-spacing:.12em;
+  background:rgba(255,79,163,.16);border:1px solid rgba(255,130,205,.34);color:#ffd9f1;
+}
+.gameOverCard h2{margin:10px 0 6px;font-size:clamp(36px,8vw,54px);line-height:.95}
+.gameOverSub{margin:0 auto 14px;max-width:410px;font-size:14px;opacity:.78}
+.gameOverScoreLabel{font-size:12px;font-weight:800;letter-spacing:.15em;opacity:.65;margin-top:8px}
+.gameOverScore{font-size:clamp(70px,15vw,118px);line-height:.9;font-weight:700;margin:6px 0 14px;background:linear-gradient(180deg,#fff,#72e8ff 55%,#8b5cff);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 8px 18px rgba(0,0,0,.3))}
+.gameOverStats{gap:10px;margin-bottom:18px}
+.gameOverStats .statChip{min-width:145px;justify-content:center;gap:8px}
+.gameOverActions{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+.gameOverActions .btn{width:min(320px,86vw);min-height:60px}
+@media(max-width:520px){
+  .gameOverCard{border-radius:26px;padding:20px 16px 22px}
+  .gameOverBall{width:92px;height:92px}
+  .gameOverSub{font-size:13px}
+  .gameOverStats{flex-direction:column;width:100%}
+  .gameOverStats .statChip{width:min(300px,86vw);min-width:0}
+}
+@media(max-height:600px) and (orientation:landscape){
+  .gameOverCard{max-height:92vh;padding:12px 22px 16px}
+  .gameOverBall{width:66px;height:66px;margin-bottom:4px}
+  .gameOverGlow{top:40px;width:140px;height:140px}
+  .gameOverCard h2{font-size:34px}
+  .gameOverSub{margin-bottom:5px}
+  .gameOverScore{font-size:58px;margin:2px 0 6px}
+  .gameOverStats{margin-bottom:6px}
+  .gameOverActions{flex-direction:row;justify-content:center}
+  .gameOverActions .btn{min-height:46px;width:170px;padding:10px 18px}
+}
 </style>
 </head>
 <body>
@@ -1084,10 +1203,25 @@ input{font:inherit;font-size:28px;padding:10px 16px;border-radius:18px;border:5p
   <button class="btn b3" data-a="retry"><svg class="i"><use href="#i-redo"/></svg>Recommencer</button>
   <button class="btn b2" data-a="menu"><svg class="i"><use href="#i-home"/></svg>Menu</button></section>
 
-<section id="over" class="scr"><h2>Tombé du ciel !</h2><p>Distance</p><div class="big" id="fs">0</div>
-  <div class="row"><span class="chip"><svg class="i"><use href="#i-coin"/></svg>+<span id="fc">0</span></span><span class="chip"><svg class="i" style="color:var(--cy)"><use href="#i-star"/></svg>Record <span id="fb">0</span></span></div>
-  <button class="btn b1" data-a="retry"><svg class="i"><use href="#i-redo"/></svg>Rejouer</button>
-  <button class="btn b2" data-a="menu"><svg class="i"><use href="#i-home"/></svg>Menu</button></section>
+<section id="over" class="scr gameOverScreen">
+  <div class="gameOverCard">
+    <div class="gameOverGlow" aria-hidden="true"></div>
+    <div class="gameOverBall" aria-hidden="true"><div class="ballCore"></div><div class="ballRing"></div></div>
+    <div class="gameOverBadge">PARTIE TERMINÉE</div>
+    <h2>Tombé du ciel !</h2>
+    <p class="gameOverSub">Tu peux repartir immédiatement ou retourner au menu.</p>
+    <div class="gameOverScoreLabel">DISTANCE</div>
+    <div class="gameOverScore" id="fs">0</div>
+    <div class="gameOverStats row">
+      <span class="chip statChip"><svg class="i"><use href="#i-coin"/></svg><span>+<span id="fc">0</span></span></span>
+      <span class="chip statChip"><svg class="i" style="color:var(--cy)"><use href="#i-star"/></svg><span>Record <span id="fb">0</span></span></span>
+    </div>
+    <div class="gameOverActions">
+      <button class="btn b1" data-a="retry"><svg class="i"><use href="#i-redo"/></svg>Rejouer</button>
+      <button class="btn b2" data-a="menu"><svg class="i"><use href="#i-home"/></svg>Menu</button>
+    </div>
+  </div>
+</section>
 
 <section id="win" class="scr"><h2>Niveau terminé !</h2><div class="big" id="wt">✦</div>
   <span class="chip"><svg class="i"><use href="#i-coin"/></svg>+<span id="wc">0</span></span>
@@ -1758,7 +1892,9 @@ function endRun(w){
     $('fc').textContent=run;
     $('fb').textContent=S.best;
     if(!S.mute){gameOverSound.currentTime=0;gameOverSound.play().catch(()=>{});}
-    show('over');updateMusic();
+    updateMobileUI();
+    show('over');
+    updateMusic();
   }
 }
 function menu(){
@@ -1780,9 +1916,11 @@ function updateMenuBall(){
   const s=SK[S.skin]||SK[0];
   const ball=document.querySelector('#menuBall .ballCore');
   const hero=document.getElementById('sbBall');
+  const overBall=document.querySelector('#over .ballCore');
   const load=document.querySelector('#loadingBall .ballCore');
   if(ball){ball.style.setProperty('--ball1',s[2]);ball.style.setProperty('--ball2',s[3]);}
   if(hero){hero.style.setProperty('--menuBall1',s[2]);hero.style.setProperty('--menuBall2',s[3]);}
+  if(overBall){overBall.style.setProperty('--ball1',s[2]);overBall.style.setProperty('--ball2',s[3]);}
   if(load){load.style.setProperty('--ball1',s[2]);load.style.setProperty('--ball2',s[3]);}
   const coins=document.getElementById('menuCoins'); if(coins) coins.textContent=S.coins;
   const best=document.getElementById('menuBest'); if(best) best.textContent=S.best;
