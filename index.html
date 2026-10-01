@@ -840,13 +840,6 @@ input{font:inherit;font-size:28px;padding:10px 16px;border-radius:18px;border:5p
 #menu .b{cursor:pointer;transition:transform .08s,filter .15s;}
 #menu .b:hover{filter:brightness(1.12)}#menu .b:active{transform:translateY(3px)}
 @media(min-width:701px){#menu{position:fixed!important;inset:0!important;}}
-@media(max-width:700px){
-  #menu>.sbStage{
-    left:50%;top:50%;margin:0;
-    transform:translate(-50%,-50%) scale(min(calc(100vw / 1536),calc(100vh / 1024)));
-    transform-origin:center center;
-  }
-}
 @media(max-width:700px) and (orientation:portrait){
   #menu .sbTop{left:26px;right:26px;top:22px;height:64px}
   #menu .sbBrand{font-size:27px;gap:9px}
@@ -888,7 +881,7 @@ input{font:inherit;font-size:28px;padding:10px 16px;border-radius:18px;border:5p
    ========================================================= */
 #menu{padding:0!important;display:none!important;overflow:hidden;background:#05051a!important;backdrop-filter:none!important;z-index:5!important;color:#fff}
 #menu.on{display:block!important}
-#menu .sbStage{position:absolute;left:50%;top:50%;width:1536px;height:1024px;transform:translate(-50%,-50%) scale(min(calc(100vw / 1536),calc(100vh / 1024)));transform-origin:center center;overflow:hidden}
+#menu .sbStage{position:absolute;left:50%;top:50%;width:1536px;height:1024px;transform:translate(-50%,-50%) scale(var(--sb-scale,1));transform-origin:center center;overflow:hidden}
 #menu .sbWallpaper{position:absolute;inset:0;overflow:hidden;background:
   radial-gradient(circle at 50% 42%,rgba(115,65,255,.36),transparent 30%),
   radial-gradient(circle at 15% 18%,rgba(36,198,255,.18),transparent 24%),
@@ -1037,23 +1030,6 @@ input{font:inherit;font-size:28px;padding:10px 16px;border-radius:18px;border:5p
   .gameOverStats{margin-bottom:6px}
   .gameOverActions{flex-direction:row;justify-content:center}
   .gameOverActions .btn{min-height:46px;width:170px;padding:10px 18px}
-}
-
-/* FINAL UI CENTERING FIX */
-html, body { width:100%; min-width:0; height:100%; margin:0; padding:0; overflow:hidden; }
-body { display:flex !important; align-items:center !important; justify-content:center !important; }
-#menu, #game, #gameOver, #gameover, #loading, #loadingScreen { box-sizing:border-box; }
-#menu { position:fixed !important; inset:0 !important; width:100vw !important; height:100dvh !important; min-height:100dvh !important; margin:0 !important; left:0 !important; top:0 !important; display:flex !important; align-items:center !important; justify-content:center !important; overflow:hidden !important; }
-#menu > * { max-width:100%; box-sizing:border-box; }
-#gameOver, #gameover { position:fixed !important; inset:0 !important; width:100vw !important; height:100dvh !important; margin:0 !important; display:flex !important; align-items:center !important; justify-content:center !important; overflow:hidden !important; }
-#gameOver .panel, #gameover .panel, #gameOver > div, #gameover > div { box-sizing:border-box; max-width:min(92vw, 620px); max-height:92dvh; }
-@media (max-width:700px) {
-  #menu { padding:clamp(10px,3vw,24px) !important; }
-  #gameOver, #gameover { padding:16px !important; }
-}
-@media (max-height:650px) and (orientation:landscape) {
-  #menu { padding:8px !important; }
-  #gameOver, #gameover { padding:8px !important; }
 }
 </style>
 </head>
@@ -1914,6 +1890,21 @@ function endRun(w){
     updateMusic();
   }
 }
+function centerSkyMenu(){
+  const menuEl=document.getElementById('menu');
+  const stage=menuEl?.querySelector('.sbStage');
+  if(!menuEl||!stage) return;
+  const vw=Math.max(1,window.innerWidth);
+  const vh=Math.max(1,window.innerHeight);
+  const scale=Math.min(vw/1536,vh/1024);
+  menuEl.style.setProperty('--sb-scale',String(scale));
+  stage.style.left='50%';
+  stage.style.top='50%';
+  stage.style.transform=`translate(-50%, -50%) scale(${scale})`;
+}
+window.addEventListener('resize',centerSkyMenu,{passive:true});
+window.addEventListener('orientationchange',()=>setTimeout(centerSkyMenu,80),{passive:true});
+
 function menu(){
   st='menu';
   lv=Math.min(lv,S.unl-1);
@@ -1926,6 +1917,7 @@ function menu(){
   if(coins) coins.textContent=S.coins;
   updateMenuBall();
   show('menu');
+  requestAnimationFrame(centerSkyMenu);
   updateMusic();
 }
 
