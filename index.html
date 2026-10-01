@@ -1634,29 +1634,69 @@ requestAnimationFrame(loop);
 function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id))}
 function banner(t){const b=$('bn');b.textContent=t;b.classList.remove('go');void b.offsetWidth;b.classList.add('go')}
 function resetWorld(){rows=[];gap=0;sx=sw=3;x=y=z=vy=tx=0;falling=0;parts=[]}
-function start(l){
-  lv=l;resetWorld();run=0;jb=0;
-  show('loading');$('hud').classList.remove('on');
-  initA();updateMusic();
-  const fill=$('loadingFill'),pct=$('loadingPercent'),title=$('loadingTitle'),text=$('loadingText');
-  let progress=0;
-  const steps=['Préparation du ciel','Génération de la piste','Chargement des obstacles','Placement des pièces','Prêt !'];
-  fill.style.width='0%';pct.textContent='0%';title.textContent='Préparation...';text.textContent=steps[0];
-  const timer=setInterval(()=>{
-    progress+=Math.floor(Math.random()*18)+8;
-    if(progress>=100)progress=100;
-    fill.style.width=progress+'%';pct.textContent=progress+'%';
+let loadingRAF = 0;
+let loadingSafety = 0;
+
+function runLoading(onDone, duration=1800, titleText='SKY BALL'){
+  cancelAnimationFrame(loadingRAF);
+  clearTimeout(loadingSafety);
+  show('loading');
+  $('hud').classList.remove('on');
+
+  const fill=$('loadingFill'), pct=$('loadingPercent'), title=$('loadingTitle'), text=$('loadingText');
+  const steps=['Préparation du ciel','Génération de la piste','Chargement des obstacles','Placement des éléments','Prêt !'];
+  const started=performance.now();
+  let finished=false;
+
+  fill.style.width='0%';
+  pct.textContent='0%';
+  title.textContent=titleText;
+  text.textContent=steps[0];
+
+  const finish=()=>{
+    if(finished)return;
+    finished=true;
+    cancelAnimationFrame(loadingRAF);
+    clearTimeout(loadingSafety);
+    fill.style.width='100%';
+    pct.textContent='100%';
+    text.textContent='Prêt !';
+    setTimeout(()=>{ if(typeof onDone==='function') onDone(); },180);
+  };
+
+  const tick=(now)=>{
+    if(finished)return;
+    const progress=Math.min(100, ((now-started)/duration)*100);
+    fill.style.width=progress+'%';
+    pct.textContent=Math.floor(progress)+'%';
     text.textContent=steps[Math.min(steps.length-1,Math.floor(progress/25))];
-    if(progress>=100){
-      clearInterval(timer);
-      setTimeout(()=>{
-        st='play';show('');$('hud').classList.add('on');
-        $('bf').style.width='0';$('sc').textContent='0';$('cn').textContent=S.coins;
-        updateMusic();banner('Niveau '+(l+1)+' · '+LV[l][0]);
-        updateMobileUI();
-      },180);
-    }
-  },55);
+    if(progress>=100){ finish(); return; }
+    loadingRAF=requestAnimationFrame(tick);
+  };
+
+  // Sécurité : le chargement se ferme même si l'onglet est ralenti ou si une animation est bloquée.
+  loadingSafety=setTimeout(finish, duration+900);
+  loadingRAF=requestAnimationFrame(tick);
+}
+
+function start(l){
+  lv=l;
+  resetWorld();
+  run=0;
+  jb=0;
+  initA();
+  updateMusic();
+  runLoading(()=>{
+    st='play';
+    show('');
+    $('hud').classList.add('on');
+    $('bf').style.width='0';
+    $('sc').textContent='0';
+    $('cn').textContent=S.coins;
+    updateMusic();
+    banner('Niveau '+(l+1)+' · '+LV[l][0]);
+    updateMobileUI();
+  },1900,'SKY BALL');
 }
 function endRun(w){
   st=w?'win':'over';const bonus=w?lv*15+30:0;
@@ -2199,21 +2239,11 @@ setTimeout(()=>{
 function bootSkyBall(){
   st='boot';
   $('hud').classList.remove('on');
-  show('loading');
   updateMenuBall();
-  const fill=$('loadingFill'),pct=$('loadingPercent'),title=$('loadingTitle'),text=$('loadingText');
-  let progress=0;
-  const steps=['Connexion au ciel','Préparation de Sky Ball','Chargement du menu','Synchronisation locale','Prêt !'];
-  fill.style.width='0%'; pct.textContent='0%'; title.textContent='SKY BALL'; text.textContent=steps[0];
-  const timer=setInterval(()=>{
-    progress=Math.min(100,progress+Math.floor(Math.random()*13)+7);
-    fill.style.width=progress+'%'; pct.textContent=progress+'%';
-    text.textContent=steps[Math.min(steps.length-1,Math.floor(progress/25))];
-    if(progress>=100){
-      clearInterval(timer);
-      setTimeout(()=>{ st='menu'; menu(); },260);
-    }
-  },70);
+  runLoading(()=>{
+    st='menu';
+    menu();
+  },2400,'SKY BALL');
 }
 
 bootSkyBall();
