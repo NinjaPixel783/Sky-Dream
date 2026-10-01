@@ -1761,7 +1761,21 @@ function endRun(w){
     show('over');updateMusic();
   }
 }
-function menu(){st='menu';lv=Math.min(lv,S.unl-1);resetWorld();$('hud').classList.remove('on');$('mb').textContent=S.best;$('mc').textContent=S.coins;updateMenuBall();show('menu');updateMusic()}
+function menu(){
+  st='menu';
+  lv=Math.min(lv,S.unl-1);
+  resetWorld();
+  const hud=$('hud');
+  if(hud) hud.classList.remove('on');
+  const best=document.getElementById('menuBest');
+  const coins=document.getElementById('menuCoins');
+  if(best) best.textContent=S.best;
+  if(coins) coins.textContent=S.coins;
+  updateMenuBall();
+  show('menu');
+  updateMusic();
+}
+
 function updateMenuBall(){
   const s=SK[S.skin]||SK[0];
   const ball=document.querySelector('#menuBall .ballCore');
@@ -2290,8 +2304,13 @@ function bootSkyBall(){
   $('hud').classList.remove('on');
   updateMenuBall();
   runLoading(()=>{
-    st='menu';
-    menu();
+    // Toujours afficher le menu après le splash, même si une donnée de profil manque.
+    try{ menu(); }catch(err){
+      console.error('Erreur ouverture menu:',err);
+      st='menu';
+      show('menu');
+      updateMusic();
+    }
   },2400,'SKY BALL');
 }
 
