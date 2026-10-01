@@ -1032,6 +1032,37 @@ input{font:inherit;font-size:28px;padding:10px 16px;border-radius:18px;border:5p
   .gameOverActions .btn{min-height:46px;width:170px;padding:10px 18px}
 }
 </style>
+
+<style id="restoredMenusCSS">
+.sbModal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,7,28,.62);backdrop-filter:blur(12px)}
+.sbModal.on{display:flex}.sbModalCard{width:min(92vw,560px);max-height:82vh;overflow:auto;padding:28px;border:1px solid rgba(130,230,255,.35);border-radius:28px;background:linear-gradient(145deg,rgba(15,30,72,.94),rgba(31,16,72,.92));box-shadow:0 25px 90px rgba(0,0,0,.55),0 0 50px rgba(75,180,255,.16);color:#fff;text-align:center}.sbModalCard h2{margin:0 0 18px;font-size:34px}.sbModalRow{display:flex;align-items:center;gap:14px;padding:14px;margin:10px 0;border-radius:18px;background:rgba(255,255,255,.08);text-align:left}.sbModalBtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}.sbModal button{border:0;border-radius:15px;padding:12px 20px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#52dcff,#765cff);color:#fff}.sbModal input{width:100%;box-sizing:border-box;padding:13px 15px;border-radius:14px;border:1px solid rgba(255,255,255,.2);background:rgba(0,0,0,.2);color:#fff;font-size:16px}.sbAvatarBig{width:80px;height:80px;border-radius:50%;margin:auto auto 10px;background:radial-gradient(circle at 35% 30%,#fff 0 7%,#65e7ff 8% 35%,#3152ff 60%,#711cff 100%);box-shadow:0 0 35px #45dfff}
+</style>
+<div class="sbModal" id="sbModal"><div class="sbModalCard" id="sbModalCard"></div></div>
+
+<style id="sky-screen-fix">
+#pauseS, #over {
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100dvh !important;
+  min-height:100vh !important;
+  display:none !important;
+  align-items:center !important;
+  justify-content:center !important;
+  flex-direction:column !important;
+  overflow:auto !important;
+  z-index:100 !important;
+  transform:none !important;
+}
+#pauseS.on, #over.on { display:flex !important; }
+#pauseS > *, #over > * { flex:none; }
+#pauseS h2, #pauseS .btn { position:relative; z-index:101; }
+#over .gameOverCard { margin:auto !important; transform:none !important; max-width:min(520px,92vw); width:min(520px,92vw); }
+@media (max-height:620px){
+  #pauseS, #over { padding-top:10px !important; padding-bottom:10px !important; }
+  #over .gameOverCard { max-height:96dvh; overflow:auto; }
+}
+</style>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute">
@@ -1759,23 +1790,24 @@ requestAnimationFrame(loop);
 
 // ---------- écrans ----------
 function show(id){
-  // Le loader est géré séparément pour éviter qu'il reste au-dessus d'un écran.
-  const loading=document.getElementById('loading');
-  if(loading && id!=='loading'){
-    loading.classList.remove('on');
-    loading.style.display='none';
-    loading.style.visibility='hidden';
-    loading.style.pointerEvents='none';
-  }
+  // Écran actif unique : display + visibilité forcés pour éviter les conflits CSS.
   document.querySelectorAll('.scr').forEach(screen=>{
     const active=screen.id===id;
     screen.classList.toggle('on',active);
-    if(screen.id==='loading'){
-      screen.style.display=active?'flex':'none';
-      screen.style.visibility=active?'visible':'hidden';
-      screen.style.pointerEvents=active?'auto':'none';
-    }
+    screen.style.display=active?'flex':'none';
+    screen.style.visibility=active?'visible':'hidden';
+    screen.style.opacity=active?'1':'0';
+    screen.style.pointerEvents=active?'auto':'none';
+    screen.style.zIndex=active?'100':'0';
   });
+  const active=document.getElementById(id);
+  if(active){
+    active.style.display='flex';
+    active.style.visibility='visible';
+    active.style.opacity='1';
+    active.style.pointerEvents='auto';
+    active.style.zIndex='100';
+  }
 }
 function banner(t){const b=$('bn');b.textContent=t;b.classList.remove('go');void b.offsetWidth;b.classList.add('go')}
 function resetWorld(){rows=[];gap=0;sx=sw=3;x=y=z=vy=tx=0;falling=0;parts=[]}
@@ -2495,5 +2527,5 @@ function toast(message){
   
 })();
 </script>
-</body>
+\n<script id="restoredMenusJS">\n(function(){\n const modal=document.getElementById('sbModal'), card=document.getElementById('sbModalCard');\n function close(){modal.classList.remove('on')}\n function open(title,body){card.innerHTML='<h2>'+title+'</h2>'+body+'<div class="sbModalBtns"><button data-close-menu>Fermer</button></div>';modal.classList.add('on')}\n modal.addEventListener('click',e=>{if(e.target===modal||e.target.closest('[data-close-menu]'))close()});\n window.openProfileMenu=()=>open('Profil',`<div class="sbAvatarBig"></div><input id="profileName" maxlength="16" placeholder="Ton pseudo"><div class="sbModalBtns"><button id="saveProfile">Enregistrer</button><button id="openSkins">Skins</button></div>`);\n window.openSkinsMenu=()=>open('Skins',`<div class="sbModalRow">⚡ <b>Sky</b><span style="margin-left:auto">Équipé</span></div><div class="sbModalRow">🔥 <b>Fire</b><span style="margin-left:auto">30 🪙</span></div><div class="sbModalRow">❄️ <b>Ice</b><span style="margin-left:auto">60 🪙</span></div><div class="sbModalRow">🌌 <b>Galaxy</b><span style="margin-left:auto">400 🪙</span></div><div class="sbModalBtns"><button id="openShop2">Boutique</button></div>`);\n window.openShopMenu=()=>open('Boutique',`<div class="sbModalRow">💎 Pack de gemmes <b style="margin-left:auto">50</b></div><div class="sbModalRow">🎁 Coffre skin <b style="margin-left:auto">80</b></div><div class="sbModalRow">🏆 Boost trophées <b style="margin-left:auto">120</b></div><p style="opacity:.7">Achats bientôt disponibles.</p>`);\n window.openSimpleMenu=(title,text)=>open(title,'<p style="line-height:1.6;opacity:.85">'+text+'</p>');\n modal.addEventListener('click',e=>{if(e.target.id==='openSkins')openSkinsMenu();if(e.target.id==='openShop2')openShopMenu();if(e.target.id==='saveProfile'){const n=document.getElementById('profileName').value.trim();if(n){try{localStorage.setItem('skyd_name',n)}catch(_){};const b=document.querySelector('.sbProfile b');if(b)b.textContent=n;close()}}});\n const old=document.querySelectorAll('[data-menu-action]'); old.forEach(el=>el.addEventListener('click',e=>{const a=el.dataset.menuAction;if(a==='skins'&&el.closest('.sbProfile')){e.stopImmediatePropagation();openProfileMenu()}else if(a==='skins'){e.stopImmediatePropagation();openSkinsMenu()}else if(a==='shop'){e.stopImmediatePropagation();openShopMenu()}else if(a==='ranking'){e.stopImmediatePropagation();openSimpleMenu('Classement','Le classement sera disponible avec le système multijoueur.')}else if(a==='friends'){e.stopImmediatePropagation();openSimpleMenu('Amis','Ajoute tes amis et retrouve-les ici. Le système d’amis en ligne arrive bientôt.')}else if(a==='event'){e.stopImmediatePropagation();openSimpleMenu('Événement','Tournoi des îles flottantes — bientôt disponible.')}else if(a==='quests'){e.stopImmediatePropagation();openSimpleMenu('Quêtes','Jouer 3 parties · Gagner 1 partie · Atteindre 200 parties.')}}));\n try{const n=localStorage.getItem('skyd_name');if(n){const b=document.querySelector('.sbProfile b');if(b)b.textContent=n}}catch(_){}\n})();\n</script>\n</body>
 </html> 
