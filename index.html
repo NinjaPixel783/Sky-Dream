@@ -1631,7 +1631,25 @@ function loop(t){requestAnimationFrame(loop);acc=Math.min(acc+t-last,100);last=t
 requestAnimationFrame(loop);
 
 // ---------- écrans ----------
-function show(id){document.querySelectorAll('.scr').forEach(s=>s.classList.toggle('on',s.id===id))}
+function show(id){
+  // Le loader est géré séparément pour éviter qu'il reste au-dessus d'un écran.
+  const loading=document.getElementById('loading');
+  if(loading && id!=='loading'){
+    loading.classList.remove('on');
+    loading.style.display='none';
+    loading.style.visibility='hidden';
+    loading.style.pointerEvents='none';
+  }
+  document.querySelectorAll('.scr').forEach(screen=>{
+    const active=screen.id===id;
+    screen.classList.toggle('on',active);
+    if(screen.id==='loading'){
+      screen.style.display=active?'flex':'none';
+      screen.style.visibility=active?'visible':'hidden';
+      screen.style.pointerEvents=active?'auto':'none';
+    }
+  });
+}
 function banner(t){const b=$('bn');b.textContent=t;b.classList.remove('go');void b.offsetWidth;b.classList.add('go')}
 function resetWorld(){rows=[];gap=0;sx=sw=3;x=y=z=vy=tx=0;falling=0;parts=[]}
 let loadingRAF = 0;
@@ -1640,13 +1658,34 @@ let loadingSafety = 0;
 function runLoading(onDone, duration=1800, titleText='SKY BALL'){
   cancelAnimationFrame(loadingRAF);
   clearTimeout(loadingSafety);
-  show('loading');
-  $('hud').classList.remove('on');
+  if(window.__skyLoadingTimer) clearInterval(window.__skyLoadingTimer);
 
-  const fill=$('loadingFill'), pct=$('loadingPercent'), title=$('loadingTitle'), text=$('loadingText');
+  const loading=document.getElementById('loading');
+  const fill=document.getElementById('loadingFill');
+  const pct=document.getElementById('loadingPercent');
+  const title=document.getElementById('loadingTitle');
+  const text=document.getElementById('loadingText');
+  const hud=document.getElementById('hud');
+  if(!loading || !fill || !pct || !title || !text) {
+    if(typeof onDone==='function') onDone();
+    return;
+  }
+
+  // Affichage explicite : aucune règle CSS ne peut laisser le loader bloqué.
+  document.querySelectorAll('.scr').forEach(screen=>{
+    screen.classList.remove('on');
+    if(screen.id!=='loading') screen.style.display='none';
+  });
+  loading.classList.add('on');
+  loading.style.display='flex';
+  loading.style.visibility='visible';
+  loading.style.pointerEvents='auto';
+  if(hud) hud.classList.remove('on');
+
   const steps=['Préparation du ciel','Génération de la piste','Chargement des obstacles','Placement des éléments','Prêt !'];
-  const started=performance.now();
+  const started=Date.now();
   let finished=false;
+  const safeDuration=Math.max(500,Number(duration)||1800);
 
   fill.style.width='0%';
   pct.textContent='0%';
@@ -1654,29 +1693,39 @@ function runLoading(onDone, duration=1800, titleText='SKY BALL'){
   text.textContent=steps[0];
 
   const finish=()=>{
-    if(finished)return;
+    if(finished) return;
     finished=true;
     cancelAnimationFrame(loadingRAF);
     clearTimeout(loadingSafety);
+    if(window.__skyLoadingTimer) clearInterval(window.__skyLoadingTimer);
     fill.style.width='100%';
     pct.textContent='100%';
     text.textContent='Prêt !';
-    setTimeout(()=>{ if(typeof onDone==='function') onDone(); },180);
+
+    // Retire réellement le loader avant de passer à l'écran suivant.
+    loading.classList.remove('on');
+    loading.style.display='none';
+    loading.style.visibility='hidden';
+    loading.style.pointerEvents='none';
+
+    requestAnimationFrame(()=>{
+      if(typeof onDone==='function') onDone();
+    });
   };
 
-  const tick=(now)=>{
-    if(finished)return;
-    const progress=Math.min(100, ((now-started)/duration)*100);
+  const tick=()=>{
+    if(finished) return;
+    const progress=Math.min(100,((Date.now()-started)/safeDuration)*100);
     fill.style.width=progress+'%';
     pct.textContent=Math.floor(progress)+'%';
     text.textContent=steps[Math.min(steps.length-1,Math.floor(progress/25))];
-    if(progress>=100){ finish(); return; }
-    loadingRAF=requestAnimationFrame(tick);
+    if(progress>=100) finish();
   };
 
-  // Sécurité : le chargement se ferme même si l'onglet est ralenti ou si une animation est bloquée.
-  loadingSafety=setTimeout(finish, duration+900);
-  loadingRAF=requestAnimationFrame(tick);
+  // Intervalle + timeout de secours : fonctionne même si requestAnimationFrame est suspendu.
+  window.__skyLoadingTimer=setInterval(tick,50);
+  loadingSafety=setTimeout(finish,safeDuration+250);
+  tick();
 }
 
 function start(l){
@@ -2246,7 +2295,7 @@ function bootSkyBall(){
   },2400,'SKY BALL');
 }
 
-bootSkyBall();
+if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',bootSkyBall,{once:true}); } else { bootSkyBall(); }
 
 function toast(message){
   const b=$('bn');
